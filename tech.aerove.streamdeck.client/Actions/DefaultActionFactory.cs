@@ -80,7 +80,7 @@ namespace tech.aerove.streamdeck.client.Actions
             List<object> parameters = new List<object>();
             foreach (var parameter in constructorInfo.GetParameters())
             {
-                var service = _services.GetService(type);
+                var service = _services.GetService(parameter.ParameterType);
                 parameters.Add(service);
             }
             ActionBase action = Activator.CreateInstance(type, parameters.ToArray()) as ActionBase;
@@ -97,7 +97,7 @@ namespace tech.aerove.streamdeck.client.Actions
                 var resolvable = true;
                 foreach (var parameter in parameters)
                 {
-                    var service = _services.GetService(type);
+                    var service = _services.GetService(parameter.ParameterType);
                     if (service == null)
                     {
                         resolvable = false;

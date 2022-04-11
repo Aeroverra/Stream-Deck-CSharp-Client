@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using tech.aerove.streamdeck.client.Actions;
 using tech.aerove.streamdeck.client.Events;
 using tech.aerove.streamdeck.client.Messages;
-using tech.aerove.streamdeck.client.Models;
 
 namespace tech.aerove.streamdeck.client
 {
@@ -40,7 +39,8 @@ namespace tech.aerove.streamdeck.client
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-
+            var devenv = Environment.ProcessPath == "C:\\Users\\Nicholas\\Desktop\\Repos\\tech.aerove.streamdeck.service\\tech.aerove.streamdeck.service\\bin\\Debug\\net6.0\\tech.aerove.streamdeck.service.exe";
+            if (!devenv) { return; }
             StoppingToken = stoppingToken;
             try
             {
@@ -61,8 +61,10 @@ namespace tech.aerove.streamdeck.client
 
         private async Task HandleIncoming(string message)
         {
-            _logger.LogDebug("Received: {resultString}", message);
+            _logger.LogDebug("------");
             var elgatoEvent = ElgatoEvent.FromJson(message);
+            _logger.LogDebug("Received: {eventtype}", elgatoEvent.Event);
+            _logger.LogDebug("{resultString}", message);
             if (elgatoEvent == null)
             {
                 _logger.LogWarning("Could not parse event: {resultString}", message);

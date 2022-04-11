@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace tech.aerove.streamdeck.client.Events
 {
-    internal class SystemDidWakeUpEvent : ElgatoEvent
+    public class SystemDidWakeUpEvent : ElgatoEvent
     {
         public override ElgatoEventType Event { get; set; }
     }

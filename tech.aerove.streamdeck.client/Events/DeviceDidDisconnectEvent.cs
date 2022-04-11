@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace tech.aerove.streamdeck.client.Events
 {
-    internal class DeviceDidDisconnectEvent : ElgatoEvent
+    public class DeviceDidDisconnectEvent : ElgatoEvent
     {
         public override ElgatoEventType Event { get; set; }
+        public string Device { get; set; }
     }
 }

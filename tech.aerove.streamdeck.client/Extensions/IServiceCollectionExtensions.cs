@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using tech.aerove.streamdeck.client.Actions;
-using tech.aerove.streamdeck.client.Models;
 
 namespace tech.aerove.streamdeck.client
 {
@@ -14,6 +14,7 @@ namespace tech.aerove.streamdeck.client
             services.AddHostedService<WebSocketService>();
             services.AddSingleton<IActionFactory, DefaultActionFactory>();
             services.AddSingleton<IActionExecuter,DefaultActionExecuter>();
+            //services.TryAddSingleton<IActionExecuter, DefaultActionExecuter>();
 
         }
 

@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace tech.aerove.streamdeck.client.Events
 {
-    internal class DeviceDidConnectEvent : ElgatoEvent
+    public class DeviceDidConnectEvent : ElgatoEvent
     {
         public override ElgatoEventType Event { get; set; }
+        public string Device { get; set; }
+        public DeviceInfo DeviceInfo { get; set; }
     }
 }
