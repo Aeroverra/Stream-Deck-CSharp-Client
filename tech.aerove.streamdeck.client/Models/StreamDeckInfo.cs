@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,19 +15,30 @@ namespace tech.aerove.streamdeck.client.Models
         public int Port { get; set; }
         public string PluginUUID { get; set; } = "";
         public string RegisterEvent { get; set; } = "";
-        public string Info { get; set; } = "";
-        public DeviceInfo DeviceInfo { get 
+        public DeviceInfo Info { get; set; } = new DeviceInfo();
+
+
+
+        public StreamDeckInfo(ILogger<StreamDeckInfo> logger, IConfiguration config)
+        {
+            try
             {
-                if (String.IsNullOrWhiteSpace(_DeviceInfo.Application.Platform))
+                config.Bind(this);
+                var info = config["info"];
+                JObject obj = JObject.Parse(info);
+                Info = obj.ToObject<DeviceInfo>() ?? Info;
+                logger.LogInformation($"Port:{Port}");
+                var args = config["args"].Split(",,,");
+                foreach (var arg in args)
                 {
-                    JObject obj = JObject.Parse(Info);
-                    _DeviceInfo = obj.ToObject<DeviceInfo>() ?? _DeviceInfo;
+                    logger.LogInformation("{arg}", arg);
                 }
-                return _DeviceInfo;
+            }
+            catch (Exception e)
+            {
+                logger.LogCritical(e, "Could not load config.");
             }
         }
-        private DeviceInfo _DeviceInfo { get; set; } = new DeviceInfo();
-
     }
 
     public class DeviceInfo

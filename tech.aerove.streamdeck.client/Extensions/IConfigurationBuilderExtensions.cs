@@ -9,17 +9,40 @@ namespace tech.aerove.streamdeck.client
 {
     public static class IConfigurationBuilderExtensions
     {
-
+        //Parses the args and adds them to our configuration
         public static IConfigurationBuilder AddStreamDeckArgs(this IConfigurationBuilder configurationBuilder, string[] args)
         {
             var newArgs = new List<string>();
-            for (int x = 0; x < args.Length; x += 2)
+            var allArgs = string.Join(",,,", args);
+            allArgs = "args=" + allArgs;
+            newArgs.Add(allArgs);
+            for (int x = 0; x < args.Length; x++)
             {
-                var key = args[x].Replace("-", "");
-                var value = args[x + 1];
-                newArgs.Add($"{key}={value}");
+                try
+                {
+                    //handled in a way that allows for other args to be passed just in case
+                    var key = args[x];
+                    //check to make sure this is a stream deck arg (starts with a single -)
+                    if (key.StartsWith("-") && !key.StartsWith("--"))
+                    {
+                        key = key.Replace("-", "");
+                    }
+                    //check to make sure we don't have another key in the event a value was missing
+                    if (x + 1 < args.Length && !args[x + 1].StartsWith("-"))
+                    {
+                        var value = args[x + 1];
+                        newArgs.Add($"{key}={value}");
+                        x++; //skip next one because we used it as the value
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    //just in case
+                    Console.WriteLine("Could not parse args!");
+                    Console.WriteLine(e);
+                }
             }
-            newArgs.ForEach(x => Console.WriteLine(x));
             return configurationBuilder.AddCommandLine(newArgs.ToArray());
 
         }
