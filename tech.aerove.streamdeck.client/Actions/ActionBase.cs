@@ -4,11 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using tech.aerove.streamdeck.client.Events;
+using tech.aerove.streamdeck.client.Messages;
 
 namespace tech.aerove.streamdeck.client.Actions
 {
     public abstract class ActionBase 
     {
+        public ElgatoDispatcher Dispatcher { get; set; }
         public string Context { get; set; }
         public virtual void ApplicationDidLaunch(ApplicationDidLaunchEvent e)
         {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace tech.aerove.streamdeck.client.Messages
 {
-    internal class RegistrationEvent : IElgatoMessage
+    internal class RegistrationMessage : IElgatoMessage
     {
         public string Event { get; set; } = "";
         public string UUID { get; set; } = "";

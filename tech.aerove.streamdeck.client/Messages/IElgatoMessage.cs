@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace tech.aerove.streamdeck.client.Messages
 {
-    internal interface IElgatoMessage
+    public interface IElgatoMessage
     {
     }
 }

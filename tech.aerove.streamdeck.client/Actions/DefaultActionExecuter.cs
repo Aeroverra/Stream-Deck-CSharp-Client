@@ -19,11 +19,11 @@ namespace tech.aerove.streamdeck.client.Actions
 
         public async Task ExecuteAsync(ElgatoEvent elgatoEvent, List<ActionBase> actions)
         {
-            //A way to give every action its own object
-            var json = JsonConvert.SerializeObject(elgatoEvent);
+
             foreach (ActionBase action in actions)
             {
-                var actionEvent = ElgatoEvent.FromJson(json);
+                //todo: find a way to deepcopy or prevent changing vars
+                var actionEvent = elgatoEvent;
                 switch (elgatoEvent.Event)
                 {
                     case ElgatoEventType.DidReceiveSettings:

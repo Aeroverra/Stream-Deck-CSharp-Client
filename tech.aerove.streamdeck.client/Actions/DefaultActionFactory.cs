@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -7,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using tech.aerove.streamdeck.client.Events;
+using tech.aerove.streamdeck.client.Messages;
 
 namespace tech.aerove.streamdeck.client.Actions
 {
@@ -84,6 +86,14 @@ namespace tech.aerove.streamdeck.client.Actions
                 parameters.Add(service);
             }
             ActionBase action = Activator.CreateInstance(type, parameters.ToArray()) as ActionBase;
+            
+            
+            var wss =_services.GetService<IEnumerable<IHostedService>>()
+                .Where(x=>x.GetType() == typeof(WebSocketService))
+                .SingleOrDefault() as WebSocketService;
+
+            ElgatoDispatcher dispatcher = new ElgatoDispatcher(wss);
+            action.Dispatcher = dispatcher;
             return action;
 
         }

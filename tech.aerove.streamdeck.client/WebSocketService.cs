@@ -52,7 +52,7 @@ namespace tech.aerove.streamdeck.client
             }
             catch (Exception e)
             {
-                _logger.LogWarning(e,"websocketservice error");
+                _logger.LogWarning(e, "websocketservice error");
             }
             await DisconnectAsync();
             _logger.LogInformation("{ClientName} Shutting Down...", "Aerove Stream Deck Client");
@@ -90,7 +90,7 @@ namespace tech.aerove.streamdeck.client
                 await DisconnectAsync();
                 return;
             }
-            var registrationMessage = new RegistrationEvent
+            var registrationMessage = new RegistrationMessage
             {
                 UUID = StreamDeckInfo.PluginUUID,
                 Event = StreamDeckInfo.RegisterEvent
@@ -149,6 +149,17 @@ namespace tech.aerove.streamdeck.client
                 _logger.LogWarning(e, "Listener died in exception.");
             }
 
+        }
+        public Task SendAsync(object message)
+        {
+            var settings = new JsonSerializerSettings
+            {
+                ContractResolver = new DefaultContractResolver
+                {
+                    NamingStrategy = new CamelCaseNamingStrategy()
+                }
+            };
+            return SendAsync(JsonConvert.SerializeObject(message, settings));
         }
         private Task SendAsync(IElgatoMessage message)
         {
