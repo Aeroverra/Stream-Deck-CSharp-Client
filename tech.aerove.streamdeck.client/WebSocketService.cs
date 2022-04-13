@@ -11,7 +11,6 @@ using System.Text;
 using System.Threading.Tasks;
 using tech.aerove.streamdeck.client.Actions;
 using tech.aerove.streamdeck.client.Events;
-using tech.aerove.streamdeck.client.Messages;
 
 namespace tech.aerove.streamdeck.client
 {
@@ -90,7 +89,7 @@ namespace tech.aerove.streamdeck.client
                 await DisconnectAsync();
                 return;
             }
-            var registrationMessage = new RegistrationMessage
+            var registrationMessage = new
             {
                 UUID = StreamDeckInfo.PluginUUID,
                 Event = StreamDeckInfo.RegisterEvent
@@ -150,7 +149,10 @@ namespace tech.aerove.streamdeck.client
             }
 
         }
-        public Task SendAsync(object message)
+       
+  
+       
+        public async Task SendAsync(object message)
         {
             var settings = new JsonSerializerSettings
             {
@@ -159,32 +161,17 @@ namespace tech.aerove.streamdeck.client
                     NamingStrategy = new CamelCaseNamingStrategy()
                 }
             };
-            return SendAsync(JsonConvert.SerializeObject(message, settings));
-        }
-        private Task SendAsync(IElgatoMessage message)
-        {
-            var settings = new JsonSerializerSettings
-            {
-                ContractResolver = new DefaultContractResolver
-                {
-                    NamingStrategy = new CamelCaseNamingStrategy()
-                }
-            };
-            return SendAsync(JsonConvert.SerializeObject(message, settings));
-        }
-
-        private async Task SendAsync(string message)
-        {
+            var json = JsonConvert.SerializeObject(message, settings);
             try
             {
                 await SendLock.WaitAsync();
-                byte[] bytes = Encoding.UTF8.GetBytes(message);
+                byte[] bytes = Encoding.UTF8.GetBytes(json);
                 ArraySegment<byte> buffer = new ArraySegment<byte>(bytes);
                 await Socket.SendAsync(buffer, WebSocketMessageType.Text, true, StoppingToken);
             }
             catch (Exception e)
             {
-                _logger.LogWarning(e, "Could not send message to Elgato: {message}", message);
+                _logger.LogWarning(e, "Could not send message to Elgato: {message}", json);
             }
             finally
             {

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace tech.aerove.streamdeck.client.Models
+namespace tech.aerove.streamdeck.client.Events.SharedModels
 {
     public class Payload
     {
@@ -15,7 +15,7 @@ namespace tech.aerove.streamdeck.client.Models
         public int State { get; set; }
         public int UserDesiredState { get; set; }
         public string Title { get; set; }
-        public Titleparameters Titleparameters { get;set;}
+        public Titleparameters Titleparameters { get; set; }
         public string Application { get; set; }
 
     }

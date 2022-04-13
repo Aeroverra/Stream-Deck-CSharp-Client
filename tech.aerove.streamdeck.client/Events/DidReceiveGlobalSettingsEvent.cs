@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using tech.aerove.streamdeck.client.Models;
+using tech.aerove.streamdeck.client.Events.SharedModels;
 
 namespace tech.aerove.streamdeck.client.Events
 {

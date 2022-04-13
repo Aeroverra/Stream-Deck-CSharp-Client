@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using tech.aerove.streamdeck.client.Events;
-using tech.aerove.streamdeck.client.Messages;
 
 namespace tech.aerove.streamdeck.client.Actions
 {

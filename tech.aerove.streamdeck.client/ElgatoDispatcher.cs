@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace tech.aerove.streamdeck.client.Messages
+namespace tech.aerove.streamdeck.client
 {
     public class ElgatoDispatcher
     {
@@ -115,7 +115,7 @@ namespace tech.aerove.streamdeck.client.Messages
                 Event = "logMessage",
                 Payload = new
                 {
-                    message = message
+                    message
                 }
             };
             return _socket.SendAsync(message2);
