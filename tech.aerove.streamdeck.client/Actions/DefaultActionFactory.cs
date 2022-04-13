@@ -92,7 +92,9 @@ namespace tech.aerove.streamdeck.client.Actions
                 .Where(x=>x.GetType() == typeof(WebSocketService))
                 .SingleOrDefault() as WebSocketService;
 
-            ElgatoDispatcher dispatcher = new ElgatoDispatcher(wss);
+            var info = _services.GetService<StreamDeckInfo>();
+
+            ElgatoDispatcher dispatcher = new ElgatoDispatcher(wss, info);
             action.Dispatcher = dispatcher;
             return action;
 

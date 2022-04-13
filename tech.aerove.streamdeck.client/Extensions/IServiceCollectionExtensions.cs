@@ -11,6 +11,7 @@ namespace tech.aerove.streamdeck.client
         public static void AddAeroveStreamDeckClient(this IServiceCollection services)
         {
             services.AddSingleton<StreamDeckInfo>();
+            services.AddSingleton<ManifestInfo>();
             services.AddHostedService<WebSocketService>();
             services.AddSingleton<IActionFactory, DefaultActionFactory>();
             services.AddSingleton<IActionExecuter,DefaultActionExecuter>();
