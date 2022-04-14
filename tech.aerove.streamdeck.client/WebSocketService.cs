@@ -25,15 +25,12 @@ namespace tech.aerove.streamdeck.client
         private Task Listener { get; set; }
         private readonly ILogger<WebSocketService> _logger;
         private readonly StreamDeckInfo StreamDeckInfo;
-        private readonly IActionFactory _factory;
-        private readonly IActionExecuter _executer;
-
-        public WebSocketService(ILogger<WebSocketService> logger, StreamDeckInfo streamDeckInfo, IActionFactory factory, IActionExecuter executer)
+        private readonly ElgatoEventHandler _eventHandler;
+        public WebSocketService(ILogger<WebSocketService> logger, StreamDeckInfo streamDeckInfo, ElgatoEventHandler eventHandler)
         {
             _logger = logger;
             StreamDeckInfo = streamDeckInfo;
-            _factory = factory;
-            _executer = executer;
+            _eventHandler = eventHandler;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -58,21 +55,6 @@ namespace tech.aerove.streamdeck.client
         }
 
 
-        private async Task HandleIncoming(string message)
-        {
-            _logger.LogDebug("------");
-            var elgatoEvent = ElgatoEvent.FromJson(message);
-            _logger.LogDebug("Received: {eventtype}", elgatoEvent.Event);
-            _logger.LogDebug("{resultString}", message);
-            if (elgatoEvent == null)
-            {
-                _logger.LogWarning("Could not parse event: {resultString}", message);
-                return;
-            }
-            var actions = _factory.CreateActions(elgatoEvent);
-            await _executer.ExecuteAsync(elgatoEvent, actions);
-
-        }
 
 
         private async Task ConnectAsync(CancellationToken stoppingToken)
@@ -96,7 +78,7 @@ namespace tech.aerove.streamdeck.client
             };
             await SendAsync(registrationMessage);
             Listener = ListenAsync();
-            _logger.LogInformation("Listening on {uri}", uri);
+            _logger.LogDebug("Listening on {uri}", uri);
 
         }
 
@@ -104,7 +86,6 @@ namespace tech.aerove.streamdeck.client
         {
             var buffer = new ArraySegment<byte>(new byte[256]);
             var readBytes = new List<byte>();
-
             string result = "";
             try
             {
@@ -139,7 +120,7 @@ namespace tech.aerove.streamdeck.client
                         }
                     }
                     //WebSocketMessageType.Text
-                    await HandleIncoming(result);
+                    await _eventHandler.HandleIncoming(result);
 
                 }
             }

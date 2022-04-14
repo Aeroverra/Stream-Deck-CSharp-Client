@@ -17,6 +17,21 @@ namespace tech.aerove.streamdeck.client
             _streamDeckInfo = streamDeckInfo;
         }
 
+        public void SendRegisterEvent()
+        {
+            Task.Run(() => SendRegisterEventAsync()).Wait();
+        }
+
+        public Task SendRegisterEventAsync()
+        {
+            var message = new
+            {
+                UUID = _streamDeckInfo.PluginUUID,
+                Event = _streamDeckInfo.RegisterEvent
+            };
+            return _socket.SendAsync(message);
+        }
+
         public void SetSettings(string context, object settings)
         {
             Task.Run(() => SetSettingsAsync(context, settings)).Wait();

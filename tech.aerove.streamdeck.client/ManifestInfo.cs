@@ -10,34 +10,34 @@ namespace tech.aerove.streamdeck.client
 {
     public class ManifestInfo
     {
-        public string Name { get; private set; }
-        public string Author { get; private set; }
-        public string Category { get; private set; } = "Custom";
-        public string CodePath { get; private set; }
-        public string? CodePathWin { get; private set; }
-        public string? CodePathMac { get; private set; }
-        public string Description { get; private set; }
-        public string Version { get; private set; }
-        public List<ManifestAction> Actions { get; private set; } = new List<ManifestAction>();
-        public List<ManifestProfile> Profiles { get; private set; } = new List<ManifestProfile>();
+        public string Name { get; set; }
+        public string Author { get; set; }
+        public string Category { get; set; } = "Custom";
+        public string CodePath { get; set; }
+        public string? CodePathWin { get; set; }
+        public string? CodePathMac { get; set; }
+        public string Description { get; set; }
+        public string Version { get; set; }
+        public List<ManifestAction> Actions { get; set; } = new List<ManifestAction>();
+        public List<ManifestProfile> Profiles { get; set; } = new List<ManifestProfile>();
         public ManifestInfo()
         {
             string json = System.IO.File.ReadAllText("manifest.json");
             JObject jo = JObject.Parse(json);
             Name = $"{jo["Name"]}";
             Author = $"{jo["Author"]}";
-            Category = $"{jo["Category"]??Category}";
+            Category = $"{jo["Category"] ?? Category}";
             CodePath = $"{jo["CodePath"]}";
-            CodePathWin = $"{jo["CodePathWin"]??null}";
-            CodePathMac = $"{jo["CodePathMac"]??null}";
+            CodePathWin = $"{jo["CodePathWin"] ?? null}";
+            CodePathMac = $"{jo["CodePathMac"] ?? null}";
             Description = $"{jo["Description"]}";
             Version = $"{jo["Version"]}";
             Actions = JsonConvert.DeserializeObject<List<ManifestAction>>($"{jo["Actions"]}");
-            if(jo["Profiles"] != null)
+            if (jo["Profiles"] != null)
             {
                 Profiles = JsonConvert.DeserializeObject<List<ManifestProfile>>($"{jo["Profiles"]}");
             }
-}
+        }
     }
     public class ManifestAction
     {
