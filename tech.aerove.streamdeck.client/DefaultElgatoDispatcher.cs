@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +11,24 @@ namespace tech.aerove.streamdeck.client
 {
     public class DefaultElgatoDispatcher : IElgatoDispatcher
     {
-        private readonly WebSocketService _socket;
-        private readonly StreamDeckInfo _streamDeckInfo;
-        public DefaultElgatoDispatcher(WebSocketService socket, StreamDeckInfo streamDeckInfo)
+        private WebSocketService _socket
         {
-            _socket = socket;
+            get
+            {
+                if (underlyingSocket == null)
+                {
+                    underlyingSocket = _services.GetService<WebSocketService>();
+                }
+                return underlyingSocket;
+            }
+        }
+        private WebSocketService? underlyingSocket { get; set; }
+        private readonly StreamDeckInfo _streamDeckInfo;
+        private readonly IServiceProvider _services;
+        public DefaultElgatoDispatcher(IServiceProvider services, StreamDeckInfo streamDeckInfo)
+        {
+            //serviceprovider to avoid circular refrence
+            _services = services;
             _streamDeckInfo = streamDeckInfo;
         }
 

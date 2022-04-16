@@ -13,11 +13,13 @@ namespace tech.aerove.streamdeck.client
     {
         public static void AddAeroveStreamDeckClient(this IServiceCollection services)
         {
+            services.AddSingleton<WebSocketService>();
+            services.AddHostedService<WebSocketService>(provider => provider.GetService<WebSocketService>());
+
             services.AddSingleton<StreamDeckInfo>();
             services.AddSingleton<IElgatoEventHandler, DefaultElgatoEventHandler>();
-            //services.AddSingleton<IElgatoDispatcher, ElgatoDispatcher>();
+            services.AddSingleton<IElgatoDispatcher, DefaultElgatoDispatcher>();
             services.AddTransient<ManifestInfo>();
-            services.AddHostedService<WebSocketService>();
             services.AddSingleton<IActionFactory, DefaultActionFactory>();
             services.AddSingleton<IActionExecuter,DefaultActionExecuter>();
             services.AddSingleton<ICache, DefaultCache>();

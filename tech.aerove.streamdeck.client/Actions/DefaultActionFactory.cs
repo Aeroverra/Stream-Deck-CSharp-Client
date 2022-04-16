@@ -26,14 +26,16 @@ namespace tech.aerove.streamdeck.client.Actions
         private readonly ILogger<DefaultActionFactory> _logger;
         private readonly ICache _cache;
         private readonly ManifestInfo _manifest;
+        private readonly IElgatoDispatcher _dispatcher;
         private List<ActionInfo> ActionInfo = new List<ActionInfo>();
-       
-        public DefaultActionFactory(IServiceProvider services, ILogger<DefaultActionFactory> logger, ICache cache, ManifestInfo manifest)
+        public DefaultActionFactory(IServiceProvider services, ILogger<DefaultActionFactory> logger,
+            ICache cache, ManifestInfo manifest, IElgatoDispatcher dispatcher)
         {
             _services = services;
             _logger = logger;
             _cache = cache;
             _manifest = manifest;
+            _dispatcher = dispatcher;
             InitializeTypes();
 
         }
@@ -62,14 +64,12 @@ namespace tech.aerove.streamdeck.client.Actions
         /// <returns></returns>
         private ActionBase? GetInstance(string instanceId)
         {
-            var wss = _services.GetService<WebSocketService>();
-            var sdi = _services.GetService<StreamDeckInfo>();
-            IElgatoDispatcher elgatoDispatcher = new DefaultElgatoDispatcher(wss,sdi);
             IActionContext actionContext = _cache.BuildContext(instanceId);
-            IActionDispatcher actionDispatcher = new DefaultActionDispatcher(elgatoDispatcher, actionContext);
+            IActionDispatcher actionDispatcher = new DefaultActionDispatcher(_dispatcher, actionContext);
             var actionInfo = ActionInfo.FirstOrDefault(x => x.UUID == actionContext.ActionUUID);
 
-            if(actionInfo == null)
+            //custructor not known or action class not known
+            if(actionInfo == null || actionInfo.ConstructorInfo == null)
             {
                 return null;
             }
@@ -80,6 +80,8 @@ namespace tech.aerove.streamdeck.client.Actions
                 var service = _services.GetService(parameter.ParameterType);
                 parameters.Add(service);
             }
+
+            //_services.GetRequiredService
             ActionBase action = Activator.CreateInstance(actionInfo.Type, parameters.ToArray()) as ActionBase;
 
             action.Dispatcher = actionDispatcher;
@@ -188,6 +190,7 @@ namespace tech.aerove.streamdeck.client.Actions
                 foreach (var parameter in parameters)
                 {
                     var service = _services.GetService(parameter.ParameterType);
+                    
                     if (service == null)
                     {
                         resolvable = false;
