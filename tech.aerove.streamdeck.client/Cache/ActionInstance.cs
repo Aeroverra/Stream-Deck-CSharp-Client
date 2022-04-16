@@ -9,7 +9,16 @@ namespace tech.aerove.streamdeck.client.Cache
 {
     public class ActionInstance
     {
+        /// <summary>
+        /// A value to identify the instance's action. You will need to pass this opaque value to several APIs like the setTitle API.
+        /// also known as the context for this instance of an action
+        /// </summary>
         public string Id { get; set; }
+
+        /// <summary>
+        /// A value to identify the instance's action. You will need to pass this opaque value to several APIs like the setTitle API.
+        /// Also known as the manifest uuid for this action
+        /// </summary>
         public string UUID { get; set; }
         public int? Column { get; set; }
         public int? Row { get; set; }

@@ -48,7 +48,7 @@ namespace tech.aerove.streamdeck.client.Actions
             foreach (var instanceId in instanceIds)
             {
                 ActionBase action = GetInstance(instanceId);
-                if(action != null)
+                if (action != null)
                 {
                     actions.Add(action);
                 }
@@ -56,7 +56,7 @@ namespace tech.aerove.streamdeck.client.Actions
 
             return actions;
         }
-       
+
         /// <summary>
         /// Creates an instance based off the action instance id
         /// </summary>
@@ -69,25 +69,28 @@ namespace tech.aerove.streamdeck.client.Actions
             var actionInfo = ActionInfo.FirstOrDefault(x => x.UUID == actionContext.ActionUUID);
 
             //custructor not known or action class not known
-            if(actionInfo == null || actionInfo.ConstructorInfo == null)
+            if (actionInfo == null || actionInfo.ConstructorInfo == null)
             {
                 return null;
             }
 
-            List<object> parameters = new List<object>();
-            foreach (var parameter in actionInfo.ConstructorInfo.GetParameters())
+            using (var scope = _services.CreateScope())
             {
-                var service = _services.GetService(parameter.ParameterType);
-                parameters.Add(service);
+                //IServiceProvider.GetService
+                List<object> parameters = new List<object>();
+                foreach (var parameter in actionInfo.ConstructorInfo.GetParameters())
+                {
+                    var service = scope.ServiceProvider.GetRequiredService(parameter.ParameterType);
+                    parameters.Add(service);
+                }
+
+
+                ActionBase action = Activator.CreateInstance(actionInfo.Type, parameters.ToArray()) as ActionBase;
+
+                action.Dispatcher = actionDispatcher;
+                action.Context = actionContext;
+                return action;
             }
-
-            //_services.GetRequiredService
-            ActionBase action = Activator.CreateInstance(actionInfo.Type, parameters.ToArray()) as ActionBase;
-
-            action.Dispatcher = actionDispatcher;
-            action.Context = actionContext;
-            return action;
-
         }
 
         /// <summary>
@@ -185,21 +188,24 @@ namespace tech.aerove.streamdeck.client.Actions
             var constructors = type.GetConstructors();
             foreach (var constructor in constructors)
             {
-                var parameters = constructor.GetParameters();
-                var resolvable = true;
-                foreach (var parameter in parameters)
+                using (var scope = _services.CreateScope())
                 {
-                    var service = _services.GetService(parameter.ParameterType);
-                    
-                    if (service == null)
+                    var parameters = constructor.GetParameters();
+                    var resolvable = true;
+                    foreach (var parameter in parameters)
                     {
-                        resolvable = false;
-                        break;
+                        var service = scope.ServiceProvider.GetRequiredService(parameter.ParameterType);
+
+                        if (service == null)
+                        {
+                            resolvable = false;
+                            break;
+                        }
                     }
-                }
-                if (resolvable)
-                {
-                    validConstructors.Add(constructor);
+                    if (resolvable)
+                    {
+                        validConstructors.Add(constructor);
+                    }
                 }
             }
             if (validConstructors.Count == 0)

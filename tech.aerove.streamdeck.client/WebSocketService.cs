@@ -121,7 +121,17 @@ namespace tech.aerove.streamdeck.client
                         }
                     }
                     //WebSocketMessageType.Text
-                    await _eventHandler.HandleIncoming(result);
+
+                    try
+                    {
+                        await _eventHandler.HandleIncoming(result);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError(e, "Error when handling event.{EventData}", result);
+                    }
+
+
 
                 }
             }
@@ -131,9 +141,9 @@ namespace tech.aerove.streamdeck.client
             }
 
         }
-       
-  
-       
+
+
+
         public async Task SendAsync(object message)
         {
             var settings = new JsonSerializerSettings

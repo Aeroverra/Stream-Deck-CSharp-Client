@@ -26,9 +26,6 @@ namespace tech.aerove.streamdeck.client.Events
             _cache = cache;
         }
 
-        //todo: figure out how to send initial events again since initially it doesn't
-        //call instances since it doesn't know about them
-        //aka devicedidconnect is called before willappear
         public async Task HandleIncoming(string message)
         {
             _logger.LogDebug("{resultString}", message);

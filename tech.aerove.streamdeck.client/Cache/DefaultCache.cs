@@ -138,7 +138,25 @@ namespace tech.aerove.streamdeck.client.Cache
         {
             var device = Devices.SingleOrDefault(x => x.Id == e.Device);
             var instance = device.ActionInstances.SingleOrDefault(x => x.Id == e.Context);
-
+          
+            //sometimes willdisappear is called before willappear when swapping pages
+            if (instance == null)
+            {
+                instance = new ActionInstance
+                {
+                    Id = e.Context,
+                    UUID = e.Action,
+                    Column = e.Payload.Coordinates?.Column,
+                    Row = e.Payload.Coordinates?.Row,
+                    IsInMultiAction = e.Payload.IsInMultiAction,
+                    State = e.Payload.State,
+                    Settings = e.Payload.Settings,
+                    Title = e.Payload.Title,
+                    Device = device,
+                    IsShown = true
+                };
+                device.ActionInstances.Add(instance);
+            }
             instance.Settings = e.Payload.Settings;
             instance.Column = e.Payload.Coordinates?.Column;
             instance.Row = e.Payload.Coordinates?.Row;
