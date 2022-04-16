@@ -7,13 +7,10 @@ using System.Threading.Tasks;
 namespace tech.aerove.streamdeck.client.Events
 {
     /// <summary>
-    /// Covers all ElgatoEvents
+    /// Handles incoming requests from the StreamDeck
     /// </summary>
-    public interface IElgatoEvent
+    public interface IElgatoEventHandler
     {
-        /// <summary>
-        /// Received Event Type
-        /// </summary>
-        ElgatoEventType Event { get; set; }
+        Task HandleIncoming(string message);
     }
 }

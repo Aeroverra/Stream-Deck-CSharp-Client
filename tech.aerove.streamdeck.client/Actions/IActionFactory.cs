@@ -9,6 +9,12 @@ namespace tech.aerove.streamdeck.client.Actions
 {
     public interface IActionFactory
     {
-        List<ActionBase> CreateActions(ElgatoEvent elgatoEvent);
+        /// <summary>
+        /// Returns a list of instances related to this action which should then 
+        /// be executed based on the event
+        /// </summary>
+        /// <param name="elgatoEvent">A recieved elgato event</param>
+        /// <returns></returns>
+        List<ActionBase> CreateActions(IElgatoEvent elgatoEvent);
     }
 }

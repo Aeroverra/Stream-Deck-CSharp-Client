@@ -7,97 +7,176 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using tech.aerove.streamdeck.client.Cache;
 using tech.aerove.streamdeck.client.Events;
+using tech.aerove.streamdeck.client.Startup;
 
 namespace tech.aerove.streamdeck.client.Actions
 {
+    internal class ActionInfo
+    {
+        public string UUID { get; set; }
+        public Type Type { get; set; }
+        public ConstructorInfo ConstructorInfo { get; set; }
+    }
     internal class DefaultActionFactory : IActionFactory
     {
+
         private readonly IServiceProvider _services;
         private readonly ILogger<DefaultActionFactory> _logger;
-        public DefaultActionFactory(IServiceProvider services, ILogger<DefaultActionFactory> logger)
+        private readonly ICache _cache;
+        private readonly ManifestInfo _manifest;
+        private List<ActionInfo> ActionInfo = new List<ActionInfo>();
+       
+        public DefaultActionFactory(IServiceProvider services, ILogger<DefaultActionFactory> logger, ICache cache, ManifestInfo manifest)
         {
             _services = services;
             _logger = logger;
-        }
-        public List<ActionBase> CreateActions(ElgatoEvent elgatoEvent)
-        {
-            var types = GetTypes(elgatoEvent);
+            _cache = cache;
+            _manifest = manifest;
+            InitializeTypes();
 
+        }
+
+
+        public List<ActionBase> CreateActions(IElgatoEvent elgatoEvent)
+        {
+            var instanceIds = GetInstanceIds(elgatoEvent);
             List<ActionBase> actions = new List<ActionBase>();
-            foreach (var type in types)
+            foreach (var instanceId in instanceIds)
             {
-                var constructor = GetConstructor(type);
-                if (constructor == null)
+                ActionBase action = GetInstance(instanceId);
+                if(action != null)
                 {
-                    _logger.LogWarning("Could not find valid constructor for type: {type}", type);
-                    continue;
+                    actions.Add(action);
                 }
-                ActionBase action = GetInstance(type, constructor);
-                actions.Add(action);
             }
+
             return actions;
         }
-        private List<Type> GetTypes(ElgatoEvent elgatoEvent)
+       
+        /// <summary>
+        /// Creates an instance based off the action instance id
+        /// </summary>
+        /// <param name="instanceId"></param>
+        /// <returns></returns>
+        private ActionBase? GetInstance(string instanceId)
         {
-            var types = Assembly.GetEntryAssembly()
-               .GetTypes()
-               .Where(x => x.IsClass)
-               .Where(x => x.IsSubclassOf(typeof(ActionBase)))
-               .ToList();
+            var wss = _services.GetService<WebSocketService>();
+            var sdi = _services.GetService<StreamDeckInfo>();
+            IElgatoDispatcher elgatoDispatcher = new DefaultElgatoDispatcher(wss,sdi);
+            IActionContext actionContext = _cache.BuildContext(instanceId);
+            IActionDispatcher actionDispatcher = new DefaultActionDispatcher(elgatoDispatcher, actionContext);
+            var actionInfo = ActionInfo.FirstOrDefault(x => x.UUID == actionContext.ActionUUID);
 
-            if (elgatoEvent is IActionEvent)
+            if(actionInfo == null)
             {
-                var actionId = (elgatoEvent as IActionEvent).Action.ToLower();
-                var attTypes = types
-                    .Where(x => x.GetCustomAttributes(typeof(PluginAction), true).Length > 0)
-                    .ToList();
-                attTypes = attTypes
-                    .Where(x => (x.GetCustomAttributes(typeof(PluginAction), true).First() as PluginAction).Id.ToLower() == actionId)
-                    .ToList();
-                if (attTypes.Count == 0)
-                {
-                    var actionName = actionId.Split(".").Last();
-                    attTypes = types
-                        .Where(x => x.Name.ToLower() == actionName)
-                        .ToList();
-                    types = attTypes;
-                }
-                if (types.Count > 1)
-                {
-                    _logger.LogWarning("Multiple actions were found for {actionId}. Consider using the PluginAction Attribute!", actionId);
-                }
-                if (types.Count == 0)
-                {
-                    _logger.LogWarning("No Actions were found for {actionId}!", actionId);
-
-                }
-
+                return null;
             }
-            return types;
-        }
-        private ActionBase GetInstance(Type type, ConstructorInfo constructorInfo)
-        {
+
             List<object> parameters = new List<object>();
-            foreach (var parameter in constructorInfo.GetParameters())
+            foreach (var parameter in actionInfo.ConstructorInfo.GetParameters())
             {
                 var service = _services.GetService(parameter.ParameterType);
                 parameters.Add(service);
             }
-            ActionBase action = Activator.CreateInstance(type, parameters.ToArray()) as ActionBase;
-            
-            
-            var wss =_services.GetService<IEnumerable<IHostedService>>()
-                .Where(x=>x.GetType() == typeof(WebSocketService))
-                .SingleOrDefault() as WebSocketService;
+            ActionBase action = Activator.CreateInstance(actionInfo.Type, parameters.ToArray()) as ActionBase;
 
-            var info = _services.GetService<StreamDeckInfo>();
-
-            ElgatoDispatcher dispatcher = new ElgatoDispatcher(wss, info);
-            action.Dispatcher = dispatcher;
+            action.Dispatcher = actionDispatcher;
+            action.Context = actionContext;
             return action;
 
         }
+
+        /// <summary>
+        /// Gets instance ids for the specified event. if the event has a specified context
+        /// than only a single instance will be returned. If the event is a generic
+        /// event like "devicedidconnect" than all known instance ids will be returned
+        /// </summary>
+        /// <param name="elgatoEvent"></param>
+        /// <returns></returns>
+        private List<string> GetInstanceIds(IElgatoEvent elgatoEvent)
+        {
+            switch (elgatoEvent.Event)
+            {
+                //global events without a device specified
+                case ElgatoEventType.DidReceiveGlobalSettings:
+                case ElgatoEventType.DeviceDidConnect:
+                case ElgatoEventType.DeviceDidDisconnect:
+                case ElgatoEventType.ApplicationDidLaunch:
+                case ElgatoEventType.ApplicationDidTerminate:
+                case ElgatoEventType.SystemDidWakeUp:
+                    return _cache.GetAllInstanceIds();
+            }
+            return new List<string>()
+            {
+                (elgatoEvent as IActionEvent).Context
+            };
+
+        }
+
+        /// <summary>
+        /// Pulls all the UUIDs from the manifest and initilizes the ActionInfo with the
+        /// corresponding type information
+        /// </summary>
+        private void InitializeTypes()
+        {
+            //get all types that inherit actionbase
+            var types = Assembly.GetEntryAssembly()
+                .GetTypes()
+                .Where(x => x.IsClass)
+                .Where(x => x.IsSubclassOf(typeof(ActionBase)))
+                .ToList();
+
+            //grab all uuids from manifest
+            var uuids = _manifest.Actions
+                .Select(x => x.Uuid)
+                .ToList();
+
+            //add each uuid to dictionary with type
+            foreach (var uuid in uuids)
+            {
+                var attTypes = types
+                    .Where(x => x.GetCustomAttributes(typeof(PluginAction), true).Length > 0)
+                    .Where(x => (x.GetCustomAttributes(typeof(PluginAction), true).First() as PluginAction).Id.ToLower() == uuid)
+                    .ToList();
+
+                //must not have an attribute, try filtering by name
+                if (attTypes.Count == 0)
+                {
+                    var actionName = uuid.Split(".").Last();
+                    attTypes = types
+                        .Where(x => x.Name.ToLower() == actionName.ToLower())
+                        .ToList();
+                }
+                if (attTypes.Count > 1)
+                {
+                    _logger.LogWarning("Multiple actions were found for {UUID}. Consider using the PluginAction Attribute! Using {Type}", uuid, attTypes.First());
+                }
+                if (attTypes.Count == 0)
+                {
+                    _logger.LogWarning("No Actions were found for {UUID} and events will not be fired for this action. Consider using the PluginAction Attribute!", uuid);
+                    continue;
+                }
+                var type = attTypes.First();
+                ActionInfo.Add(new ActionInfo
+                {
+                    UUID = uuid,
+                    Type = type,
+                    ConstructorInfo = GetConstructor(type)
+                });
+
+            }
+
+        }
+
+
+        /// <summary>
+        /// Returns the constructor with the highest number of resolvable services
+        /// from the service container
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         private ConstructorInfo? GetConstructor(Type type)
         {
             List<ConstructorInfo> validConstructors = new List<ConstructorInfo>();
@@ -122,9 +201,11 @@ namespace tech.aerove.streamdeck.client.Actions
             }
             if (validConstructors.Count == 0)
             {
+                _logger.LogWarning("Could not find a resolvable constructor for action type {Type}. No actions will be fired. ", type);
                 return null;
             }
             return validConstructors.OrderByDescending(x => x.GetParameters()).First();
         }
+
     }
 }

@@ -4,14 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using tech.aerove.streamdeck.client.Startup;
 
 namespace tech.aerove.streamdeck.client
 {
-    public class ElgatoDispatcher
+    public class DefaultElgatoDispatcher : IElgatoDispatcher
     {
         private readonly WebSocketService _socket;
         private readonly StreamDeckInfo _streamDeckInfo;
-        public ElgatoDispatcher(WebSocketService socket, StreamDeckInfo streamDeckInfo)
+        public DefaultElgatoDispatcher(WebSocketService socket, StreamDeckInfo streamDeckInfo)
         {
             _socket = socket;
             _streamDeckInfo = streamDeckInfo;
@@ -253,13 +254,13 @@ namespace tech.aerove.streamdeck.client
             return _socket.SendAsync(message);
         }
 
-        public void SendToPropertyInspector(string context, string action, JObject data)
+        public void SendToPropertyInspector(string context, string action, object data)
         {
 
             Task.Run(() => SendToPropertyInspectorAsync(context, action, data)).Wait();
         }
 
-        public Task SendToPropertyInspectorAsync(string context, string action, JObject data)
+        public Task SendToPropertyInspectorAsync(string context, string action, object data)
         {
             var message = new
             {

@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using tech.aerove.streamdeck.client.Actions;
 using tech.aerove.streamdeck.client.Events;
+using tech.aerove.streamdeck.client.Startup;
 
 namespace tech.aerove.streamdeck.client
 {
@@ -25,8 +26,8 @@ namespace tech.aerove.streamdeck.client
         private Task Listener { get; set; }
         private readonly ILogger<WebSocketService> _logger;
         private readonly StreamDeckInfo StreamDeckInfo;
-        private readonly ElgatoEventHandler _eventHandler;
-        public WebSocketService(ILogger<WebSocketService> logger, StreamDeckInfo streamDeckInfo, ElgatoEventHandler eventHandler)
+        private readonly IElgatoEventHandler _eventHandler;
+        public WebSocketService(ILogger<WebSocketService> logger, StreamDeckInfo streamDeckInfo, IElgatoEventHandler eventHandler)
         {
             _logger = logger;
             StreamDeckInfo = streamDeckInfo;

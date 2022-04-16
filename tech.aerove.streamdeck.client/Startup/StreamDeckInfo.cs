@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace tech.aerove.streamdeck.client
+namespace tech.aerove.streamdeck.client.Startup
 {
     public class StreamDeckInfo
     {

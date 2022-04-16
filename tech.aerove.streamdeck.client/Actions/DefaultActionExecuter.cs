@@ -17,7 +17,7 @@ namespace tech.aerove.streamdeck.client.Actions
             _logger = logger;
         }
 
-        public async Task ExecuteAsync(ElgatoEvent elgatoEvent, List<ActionBase> actions)
+        public async Task ExecuteAsync(IElgatoEvent elgatoEvent, List<ActionBase> actions)
         {
 
             foreach (ActionBase action in actions)
@@ -29,106 +29,103 @@ namespace tech.aerove.streamdeck.client.Actions
                     case ElgatoEventType.DidReceiveSettings:
                         {
                             var e = (DidReceiveSettingsEvent)actionEvent;
-                            action.DidReceiveSettings(e);
-                            await action.DidReceiveSettingsAsync(e);
+                            action.DidReceiveSettings(e.Payload.Settings);
+                            await action.DidReceiveSettingsAsync(e.Payload.Settings);
                             break;
                         }
                     case ElgatoEventType.DidReceiveGlobalSettings:
                         {
                             var e = (DidReceiveGlobalSettingsEvent)actionEvent;
-                            action.DidReceiveGlobalSettings(e);
-                            await action.DidReceiveGlobalSettingsAsync(e);
+                            action.DidReceiveGlobalSettings(e.Payload.Settings);
+                            await action.DidReceiveGlobalSettingsAsync(e.Payload.Settings);
                             break;
                         }
                     case ElgatoEventType.KeyDown:
                         {
                             var e = (KeyDownEvent)actionEvent;
-                            action.KeyDown(e);
-                            await action.KeyDownAsync(e);
+                            action.KeyDown(e.Payload.UserDesiredState);
+                            await action.KeyDownAsync(e.Payload.UserDesiredState);
                             break;
                         }
                     case ElgatoEventType.KeyUp:
                         {
                             var e = (KeyUpEvent)actionEvent;
-                            action.KeyUp(e);
-                            await action.KeyUpAsync(e);
+                            action.KeyUp(e.Payload.UserDesiredState);
+                            await action.KeyUpAsync(e.Payload.UserDesiredState);
                             break;
                         }
                     case ElgatoEventType.WillAppear:
                         {
-                            var e = (WillAppearEvent)actionEvent;
-                            action.WillAppear(e);
-                            await action.WillAppearAsync(e);
+                            action.WillAppear();
+                            await action.WillAppearAsync();
                             break;
                         }
                     case ElgatoEventType.WillDisappear:
                         {
-                            var e = (WillDisappearEvent)actionEvent;
-                            action.WillDisappear(e);
-                            await action.WillDisappearAsync(e);
+                            action.WillDisappear();
+                            await action.WillDisappearAsync();
                             break;
                         }
                     case ElgatoEventType.TitleParametersDidChange:
                         {
-                            var e = (TitleParametersDidChangeEvent)actionEvent;
-                            action.TitleParametersDidChange(e);
-                            await action.TitleParametersDidChangeAsync(e);
+                            action.TitleParametersDidChange();
+                            await action.TitleParametersDidChangeAsync();
                             break;
                         }
                     case ElgatoEventType.DeviceDidConnect:
                         {
                             var e = (DeviceDidConnectEvent)actionEvent;
-                            action.DeviceDidConnect(e);
-                            await action.DeviceDidConnectAsync(e);
+                            action.DeviceDidConnect(e.Device,e.DeviceInfo.Name,e.DeviceInfo.Size.Columns,e.DeviceInfo.Size.Rows);
+                            await action.DeviceDidConnectAsync(e.Device, e.DeviceInfo.Name, e.DeviceInfo.Size.Columns, e.DeviceInfo.Size.Rows);
                             break;
                         }
                     case ElgatoEventType.DeviceDidDisconnect:
                         {
                             var e = (DeviceDidDisconnectEvent)actionEvent;
-                            action.DeviceDidDisconnect(e);
-                            await action.DeviceDidDisconnectAsync(e);
+                            action.DeviceDidDisconnect(e.Device);
+                            await action.DeviceDidDisconnectAsync(e.Device);
                             break;
                         }
                     case ElgatoEventType.ApplicationDidLaunch:
                         {
                             var e = (ApplicationDidLaunchEvent)actionEvent;
-                            action.ApplicationDidLaunch(e);
-                            await action.ApplicationDidLaunchAsync(e);
+                            action.ApplicationDidLaunch(e.Payload.Application);
+                            await action.ApplicationDidLaunchAsync(e.Payload.Application);
                             break;
                         }
                     case ElgatoEventType.ApplicationDidTerminate:
                         {
                             var e = (ApplicationDidTerminateEvent)actionEvent;
-                            action.ApplicationDidTerminate(e);
-                            await action.ApplicationDidTerminateAsync(e);
+                            action.ApplicationDidTerminate(e.Payload.Application);
+                            await action.ApplicationDidTerminateAsync(e.Payload.Application);
                             break;
                         }
                     case ElgatoEventType.SystemDidWakeUp:
                         {
                             var e = (SystemDidWakeUpEvent)actionEvent;
-                            action.SystemDidWakeUp(e);
-                            await action.SystemDidWakeUpAsync(e);
+                            action.SystemDidWakeUp();
+                            await action.SystemDidWakeUpAsync();
                             break;
                         }
                     case ElgatoEventType.PropertyInspectorDidAppear:
                         {
                             var e = (PropertyInspectorDidAppearEvent)actionEvent;
-                            action.PropertyInspectorDidAppear(e);
-                            await action.PropertyInspectorDidAppearAsync(e);
+                            action.PropertyInspectorDidAppear();
+                            await action.PropertyInspectorDidAppearAsync();
                             break;
                         }
                     case ElgatoEventType.PropertyInspectorDidDisappear:
                         {
                             var e = (PropertyInspectorDidDisappearEvent)actionEvent;
-                            action.PropertyInspectorDidDisappear(e);
-                            await action.PropertyInspectorDidDisappearAsync(e);
+                            action.PropertyInspectorDidDisappear();
+                            await action.PropertyInspectorDidDisappearAsync();
                             break;
                         }
                     case ElgatoEventType.SendToPlugin:
                         {
                             var e = (SendToPluginEvent)actionEvent;
-                            action.SendToPlugin(e);
-                            await action.SendToPluginAsync(e);
+                            action.SendToPlugin(e.payload);
+                            await action.SendToPluginAsync(e.payload);
                             break;
                         }
                 }

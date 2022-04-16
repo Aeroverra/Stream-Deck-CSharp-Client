@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace tech.aerove.streamdeck.client.Cache
 {
-    public class Data
+    public class MonitoredApplication
     {
-        public List<Device> Devices = new List<Device>();  
-
+        public string Name { get; set; }
+        public bool IsRunning { get; set; }
     }
 }
