@@ -59,18 +59,86 @@ namespace tech.aerove.streamdeck.client.Startup
                 return null;
             }
             var newArgs = UpdateFiles(elgatoPluginFolder, currentExecutableFolder, executableName);
+            if (newArgs == null)
+            {
+                var success = RestartStreamDeckAndMoveNewFiles(elgatoPluginFolder, currentExecutableFolder);
+                if (success)
+                {
+                    newArgs = UpdateFiles(elgatoPluginFolder, currentExecutableFolder, executableName);
+                    if (newArgs != null)
+                    {
+                        Console.WriteLine("Successfully recovered from arg read error.");
+                    }
+                }
+            }
             return newArgs;
 
         }
+        private static bool RestartStreamDeckAndMoveNewFiles(string elgatoPath, string currentPath)
+        {
+            Console.WriteLine("Attempting to fix devdebug by restarting stream deck and copying new files.");
 
+            var streamdeckProcess = Process.GetProcesses()
+               .Where(x => x.HasFileName("StreamDeck.exe"))
+               .FirstOrDefault();
+
+
+            if (streamdeckProcess == null)
+            {
+                Console.WriteLine("Stream Deck is not running. Stream Deck must be running to use devdebug.");
+                return false;
+            }
+            var streamdeckExecutable = streamdeckProcess.MainModule.FileName;
+            streamdeckProcess.Kill();
+
+            var allElgatoFiles = Directory.GetFiles(elgatoPath, "*", SearchOption.AllDirectories);
+            foreach (var file in allElgatoFiles)
+            {
+                try
+                {
+                    File.Delete(file);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"[DELETE ERROR] {file}");
+                    return false;
+                }
+            }
+
+            var currentFiles = Directory.GetFiles(currentPath, "*", SearchOption.AllDirectories);
+            foreach (var file in currentFiles)
+            {
+                var fileName = Path.GetFileName(file);
+                var extraPath = Path.GetDirectoryName(file).Replace(currentPath, "");
+                var copyPath = $"{elgatoPath}{extraPath}\\{fileName}";
+                Directory.CreateDirectory(Path.GetDirectoryName(copyPath));
+                File.Copy(file, copyPath);
+            }
+
+
+            streamdeckProcess = Process.Start(streamdeckExecutable);
+
+            return true;
+        }
         private static string[]? UpdateFiles(string elgatoPath, string currentPath, string executableName)
         {
+            Directory.CreateDirectory(elgatoPath);
             File.Delete($"{elgatoPath}\\args.txt");
             File.Delete($"{elgatoPath}\\appsettings.json");
             File.Delete($"{elgatoPath}\\appsettings.Development.json");
             File.Delete($"{elgatoPath}\\manifest.json");
             File.WriteAllText($"{elgatoPath}\\appsettings.json", "{\"DevLogParametersOnly\":true}");
             File.Copy($"{currentPath}\\manifest.json", $"{elgatoPath}\\manifest.json");
+
+            var propertyInspectorFiles = Directory.GetFiles($"{currentPath}\\PropertyInspector", "*", SearchOption.AllDirectories);
+            foreach (var file in propertyInspectorFiles)
+            {
+                var fileName = Path.GetFileName(file);
+                var extraPath = Path.GetDirectoryName(file).Replace($"{currentPath}\\PropertyInspector", "");
+                var copyPath = $"{elgatoPath}\\PropertyInspector{extraPath}\\{fileName}";
+                Directory.CreateDirectory(Path.GetDirectoryName(copyPath));
+                File.Copy(file, copyPath, true);
+            }
 
             var process = Process.GetProcesses()
                 .Where(x => x.MatchesPath(elgatoPath))
@@ -83,11 +151,12 @@ namespace tech.aerove.streamdeck.client.Startup
             }
 
             Console.WriteLine("Reading new args");
+            //waits for a max of 11250 ms
             for (int x = 0; x < 10; x++)
             {
                 if (!File.Exists($"{elgatoPath}\\args.txt"))
                 {
-                    Thread.Sleep(x * 500);
+                    Thread.Sleep(x * 250);
                     continue;
                 }
                 Console.WriteLine("Args read successfully!");
