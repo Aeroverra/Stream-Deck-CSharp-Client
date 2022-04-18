@@ -14,7 +14,7 @@ namespace tech.aerove.streamdeck.client.Startup
         {
             File.WriteAllText("args.txt", string.Join(Environment.NewLine, args));
         }
-        public static void DevDebug(IConfiguration config)
+        public static string[]? DevDebug(IConfiguration config)
         {
 
             var elgatoPluginFolder = config.GetValue<string>("ElgatoPluginPath");
@@ -23,48 +23,21 @@ namespace tech.aerove.streamdeck.client.Startup
             var executableName = Path.GetFileName(currentExecutablePath);
             if (elgatoPluginFolder == currentExecutableFolder)
             {
-                return;
+                Console.WriteLine("DevDebug is on within the plugins folder. This should not happen.");
+                return null;
             }
-            MoveFiles(elgatoPluginFolder, currentExecutableFolder, executableName);
-
+            var newArgs = MoveFiles(elgatoPluginFolder, currentExecutableFolder, executableName);
+            return newArgs;
 
         }
-        private static void MoveFiles(string elgatoPath, string currentPath, string executableName)
+        private static string[]? MoveFiles(string elgatoPath, string currentPath, string executableName)
         {
-            var allElgatoFiles = Directory.GetFiles(elgatoPath, "*", SearchOption.AllDirectories);
-            List<string> FilesNotDeleted = new List<string>();
-            foreach (var file in allElgatoFiles)
-            {
-                Console.WriteLine($"[DELERR] {file}");
-                try
-                {
-                    File.Delete(file);
-                }
-                catch (Exception e)
-                {
-                    FilesNotDeleted.Add(file);
-                }
-            }
-
-            var currentFiles = Directory.GetFiles(currentPath, "*", SearchOption.AllDirectories);
-            var filesPendingCopy = new List<string>();
-            foreach (var file in currentFiles)
-            {
-                var fileName = Path.GetFileName(file);
-                if (FilesNotDeleted.Where(x => x.EndsWith(fileName)).Any())
-                {
-                    filesPendingCopy.Add(file);
-                    continue;
-                }
-                var extraPath = Path.GetDirectoryName(file).Replace(currentPath, "");
-                var copyPath = $"{elgatoPath}{extraPath}\\{fileName}";
-                Directory.CreateDirectory(Path.GetDirectoryName(copyPath));
-                File.Copy(file, copyPath);
-            }
-
-            File.Delete($"{elgatoPath}\\appsettings.Development.json");
+            File.Delete($"{elgatoPath}\\args.txt");
             File.Delete($"{elgatoPath}\\appsettings.json");
+            File.Delete($"{elgatoPath}\\appsettings.Development.json");
+            File.Delete($"{elgatoPath}\\manifest.json");
             File.WriteAllText($"{elgatoPath}\\appsettings.json", "{\"DevLogParametersOnly\":true}");
+            File.Copy($"{currentPath}\\manifest.json", $"{elgatoPath}\\manifest.json");
 
             var process = Process.GetProcesses()
                 .Where(x => x.MatchesPath(elgatoPath))
@@ -76,27 +49,19 @@ namespace tech.aerove.streamdeck.client.Startup
                 process.Kill();
             }
 
-            foreach (var file in FilesNotDeleted)
+            Console.WriteLine("Reading new args");
+            for (int x = 0; x < 10; x++)
             {
-                try
+                if (!File.Exists($"{elgatoPath}\\args.txt"))
                 {
-                    File.Delete(file);
-                    Console.WriteLine("success");
+                    Thread.Sleep(x*500);
+                    continue;
                 }
-                catch (Exception e)
-                {
-                    FilesNotDeleted.Add(file);
-                }
+                Console.WriteLine("Args read successfully!");
+                return File.ReadAllLines($"{elgatoPath}\\args.txt");
             }
-            foreach (var file in filesPendingCopy)
-            {
-                var fileName = Path.GetFileName(file);
-                var extraPath = Path.GetDirectoryName(file).Replace(currentPath, "");
-                var copyPath = $"{elgatoPath}{extraPath}\\{fileName}";
-                Directory.CreateDirectory(Path.GetDirectoryName(copyPath));
-                File.Copy(file, copyPath);
-            }
-
+            Console.WriteLine("Could not read new args!");
+            return null;
         }
         private static bool MatchesPath(this Process process, string path)
         {

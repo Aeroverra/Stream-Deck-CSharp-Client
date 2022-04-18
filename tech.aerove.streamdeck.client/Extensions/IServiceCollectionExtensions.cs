@@ -23,7 +23,8 @@ namespace tech.aerove.streamdeck.client
             var devDebug = config.GetValue<bool>("DevDebug");
             if (devDebug)
             {
-                VSDebugHandler.DevDebug(config);
+                var newArgs = VSDebugHandler.DevDebug(config);
+                args = newArgs == null?args:newArgs;
             }
 
 
