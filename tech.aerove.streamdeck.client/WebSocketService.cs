@@ -24,11 +24,13 @@ namespace tech.aerove.streamdeck.client
         private CancellationToken StoppingToken { get; set; }
         private readonly SemaphoreSlim SendLock = new SemaphoreSlim(1);
         private Task Listener { get; set; }
+        private readonly IConfiguration _configuration;
         private readonly ILogger<WebSocketService> _logger;
         private readonly StreamDeckInfo StreamDeckInfo;
         private readonly IElgatoEventHandler _eventHandler;
-        public WebSocketService(ILogger<WebSocketService> logger, StreamDeckInfo streamDeckInfo, IElgatoEventHandler eventHandler)
+        public WebSocketService(IConfiguration configuration, ILogger<WebSocketService> logger, StreamDeckInfo streamDeckInfo, IElgatoEventHandler eventHandler)
         {
+            _configuration = configuration;
             _logger = logger;
             StreamDeckInfo = streamDeckInfo;
             _eventHandler = eventHandler;
@@ -36,8 +38,13 @@ namespace tech.aerove.streamdeck.client
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var devenv = Environment.ProcessPath == "C:\\Users\\Nicholas\\Desktop\\Repos\\tech.aerove.streamdeck.service\\tech.aerove.streamdeck.service\\bin\\Debug\\net6.0\\tech.aerove.streamdeck.service.exe";
-            if (!devenv) { return; }
+            var logParametersOnly = _configuration.GetValue<bool>("DevLogParametersOnly");
+            if (logParametersOnly)
+            {
+                _logger.LogInformation("WebSocketService did not startup. Logging parameters only.");
+                return;
+            }
+
             StoppingToken = stoppingToken;
             try
             {

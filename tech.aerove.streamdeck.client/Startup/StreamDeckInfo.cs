@@ -17,29 +17,49 @@ namespace tech.aerove.streamdeck.client.Startup
         public string RegisterEvent { get; set; } = "";
         public DeviceInfo Info { get; set; } = new DeviceInfo();
 
+        //Example Startup Args
+        //-port
+        //28196
+        //-pluginUUID
+        //4B435A96A4390157D43EF7C6EFBBF7DD
+        //-registerEvent
+        //registerPlugin
+        //-info
+        //{"application":{"font":"MS Shell Dlg 2","language":"en","platform":"windows","platformVersion":"10.0.19043","version":"5.2.1.15025"},"colors":{"buttonMouseOverBackgroundColor":"#464646FF","buttonPressedBackgroundColor":"#303030FF","buttonPressedBorderColor":"#646464FF","buttonPressedTextColor":"#969696FF","highlightColor":"#0078FFFF"},"devicePixelRatio":1,"devices":[{"id":"C439D7D7F7E1B97F76AA15D8EC41FCD4","name":"Stream Deck XL","size":{"columns":8,"rows":4},"type":2},{"id":"278C67E7A64D222ABCF3CA4837D0E2A3","name":"Google Pixel 6 Pro","size":{"columns":5,"rows":3},"type":3}],"plugin":{"uuid":"tech.aerove.streamdeck.service","version":"1.0"}}
 
 
-        public StreamDeckInfo(ILogger<StreamDeckInfo> logger, IConfiguration config)
+        public StreamDeckInfo(ILogger<StreamDeckInfo> logger, List<string> startupArgs)
         {
+            logger?.LogDebug("Startup Args Recieved....");
+            foreach (var arg in startupArgs)
+            {
+                logger?.LogInformation("{arg}", arg);
+            }
             try
             {
-                config.Bind(this);
-                var info = config["info"];
-                JObject obj = JObject.Parse(info);
+                var portIndex = startupArgs.IndexOf("-port") + 1;
+                Port = int.Parse(startupArgs[portIndex]);
+
+                var pluginUUIDIndex = startupArgs.IndexOf("-pluginUUID") + 1;
+                PluginUUID = startupArgs[pluginUUIDIndex];
+
+                var registerEventIndex = startupArgs.IndexOf("-registerEvent") + 1;
+                RegisterEvent = startupArgs[registerEventIndex];
+
+                var infoIndex = startupArgs.IndexOf("-info") + 1;
+                JObject obj = JObject.Parse(startupArgs[infoIndex]);
                 Info = obj.ToObject<DeviceInfo>() ?? Info;
-                logger.LogInformation($"Port:{Port}");
-                var args = config["args"].Split(",,,");
-                foreach (var arg in args)
-                {
-                    logger.LogInformation("{arg}", arg);
-                }
+
+
             }
             catch (Exception e)
             {
-                logger.LogCritical(e, "Could not load config.");
+                logger?.LogCritical(e, "Could not load config.");
             }
         }
     }
+
+
 
     public class DeviceInfo
     {
@@ -89,3 +109,4 @@ namespace tech.aerove.streamdeck.client.Startup
     }
 
 }
+
