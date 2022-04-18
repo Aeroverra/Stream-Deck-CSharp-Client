@@ -1,147 +1,149 @@
 ﻿using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using tech.aerove.streamdeck.client.Events;
 
-namespace tech.aerove.streamdeck.client.Actions
+namespace tech.aerove.streamdeck.client.Events
 {
-    internal class DefaultActionExecuter : IActionExecuter
+
+    /// <summary>
+    /// This class provides a way to subscribe to events outside of inheriting
+    /// from the actionbase class. Simply inject this as a service
+    /// </summary>
+    public class EventManager
     {
-        private readonly ILogger<DefaultActionExecuter> _logger;
-        public DefaultActionExecuter(ILogger<DefaultActionExecuter> logger)
+        private readonly ILogger<EventManager> _logger;
+        public EventManager(ILogger<EventManager> logger)
         {
             _logger = logger;
         }
+        public event EventHandler<DidReceiveSettingsEvent>? OnDidReceiveSettings;
+        public event EventHandler<DidReceiveGlobalSettingsEvent>? OnDidReceiveGlobalSettings;
+        public event EventHandler<KeyDownEvent>? OnKeyDown;
+        public event EventHandler<KeyUpEvent>? OnKeyUp;
+        public event EventHandler<WillAppearEvent>? OnWillAppear;
+        public event EventHandler<WillDisappearEvent>? OnWillDisappear;
+        public event EventHandler<TitleParametersDidChangeEvent>? OnTitleParametersDidChange;
+        public event EventHandler<DeviceDidConnectEvent>? OnDeviceDidConnect;
+        public event EventHandler<DeviceDidDisconnectEvent>? OnDeviceDidDisconnect;
+        public event EventHandler<ApplicationDidLaunchEvent>? OnApplicationDidLaunch;
+        public event EventHandler<ApplicationDidTerminateEvent>? OnApplicationDidTerminate;
+        public event EventHandler<SystemDidWakeUpEvent>? OnSystemDidWakeUp;
+        public event EventHandler<PropertyInspectorDidAppearEvent>? OnPropertyInspectorDidAppear;
+        public event EventHandler<PropertyInspectorDidDisappearEvent>? OnPropertyInspectorDidDisappear;
+        public event EventHandler<SendToPluginEvent>? OnSendToPlugin;
 
-        public async Task ExecuteAsync(IElgatoEvent elgatoEvent, List<ActionBase> actions)
-        {
 
-            foreach (ActionBase action in actions)
-            {
-                _= Task.Run(()=>ExecuteAsync(elgatoEvent, action));
-            }
-            await Task.Delay(0);
-        }
-        private async Task ExecuteAsync(IElgatoEvent elgatoEvent, ActionBase action)
+        internal void HandleIncoming(IElgatoEvent? elgatoEvent)
         {
+        
+            if (elgatoEvent == null) { return; }
+
             try
             {
+
+
                 var actionEvent = elgatoEvent;
                 switch (elgatoEvent.Event)
                 {
                     case ElgatoEventType.DidReceiveSettings:
                         {
                             var e = (DidReceiveSettingsEvent)actionEvent;
-                            action.DidReceiveSettings(e.Payload.Settings);
-                            await action.DidReceiveSettingsAsync(e.Payload.Settings);
+                            OnDidReceiveSettings?.Invoke(this, e);
                             break;
                         }
                     case ElgatoEventType.DidReceiveGlobalSettings:
                         {
                             var e = (DidReceiveGlobalSettingsEvent)actionEvent;
-                            action.DidReceiveGlobalSettings(e.Payload.Settings);
-                            await action.DidReceiveGlobalSettingsAsync(e.Payload.Settings);
+                            OnDidReceiveGlobalSettings?.Invoke(this, e);
                             break;
                         }
                     case ElgatoEventType.KeyDown:
                         {
                             var e = (KeyDownEvent)actionEvent;
-                            action.KeyDown(e.Payload.UserDesiredState);
-                            await action.KeyDownAsync(e.Payload.UserDesiredState);
+                            OnKeyDown?.Invoke(this, e);
                             break;
                         }
                     case ElgatoEventType.KeyUp:
                         {
                             var e = (KeyUpEvent)actionEvent;
-                            action.KeyUp(e.Payload.UserDesiredState);
-                            await action.KeyUpAsync(e.Payload.UserDesiredState);
+                            OnKeyUp?.Invoke(this, e);
                             break;
                         }
                     case ElgatoEventType.WillAppear:
                         {
-                            action.WillAppear();
-                            await action.WillAppearAsync();
+                            var e = (WillAppearEvent)actionEvent;
+                            OnWillAppear?.Invoke(this, e);
                             break;
                         }
                     case ElgatoEventType.WillDisappear:
                         {
-                            action.WillDisappear();
-                            await action.WillDisappearAsync();
+                            var e = (WillDisappearEvent)actionEvent;
+                            OnWillDisappear?.Invoke(this, e);
                             break;
                         }
                     case ElgatoEventType.TitleParametersDidChange:
                         {
-                            action.TitleParametersDidChange();
-                            await action.TitleParametersDidChangeAsync();
+                            var e = (TitleParametersDidChangeEvent)actionEvent;
+                            OnTitleParametersDidChange?.Invoke(this, e);
                             break;
                         }
                     case ElgatoEventType.DeviceDidConnect:
                         {
                             var e = (DeviceDidConnectEvent)actionEvent;
-                            action.DeviceDidConnect(e.Device, e.DeviceInfo.Name, e.DeviceInfo.Size.Columns, e.DeviceInfo.Size.Rows);
-                            await action.DeviceDidConnectAsync(e.Device, e.DeviceInfo.Name, e.DeviceInfo.Size.Columns, e.DeviceInfo.Size.Rows);
+                            OnDeviceDidConnect?.Invoke(this, e);
                             break;
                         }
                     case ElgatoEventType.DeviceDidDisconnect:
                         {
                             var e = (DeviceDidDisconnectEvent)actionEvent;
-                            action.DeviceDidDisconnect(e.Device);
-                            await action.DeviceDidDisconnectAsync(e.Device);
+                            OnDeviceDidDisconnect?.Invoke(this, e);
                             break;
                         }
                     case ElgatoEventType.ApplicationDidLaunch:
                         {
                             var e = (ApplicationDidLaunchEvent)actionEvent;
-                            action.ApplicationDidLaunch(e.Payload.Application);
-                            await action.ApplicationDidLaunchAsync(e.Payload.Application);
+                            OnApplicationDidLaunch?.Invoke(this, e);
                             break;
                         }
                     case ElgatoEventType.ApplicationDidTerminate:
                         {
                             var e = (ApplicationDidTerminateEvent)actionEvent;
-                            action.ApplicationDidTerminate(e.Payload.Application);
-                            await action.ApplicationDidTerminateAsync(e.Payload.Application);
+                            OnApplicationDidTerminate?.Invoke(this, e);
                             break;
                         }
                     case ElgatoEventType.SystemDidWakeUp:
                         {
                             var e = (SystemDidWakeUpEvent)actionEvent;
-                            action.SystemDidWakeUp();
-                            await action.SystemDidWakeUpAsync();
+                            OnSystemDidWakeUp?.Invoke(this, e);
                             break;
                         }
                     case ElgatoEventType.PropertyInspectorDidAppear:
                         {
                             var e = (PropertyInspectorDidAppearEvent)actionEvent;
-                            action.PropertyInspectorDidAppear();
-                            await action.PropertyInspectorDidAppearAsync();
+                            OnPropertyInspectorDidAppear?.Invoke(this, e);
                             break;
                         }
                     case ElgatoEventType.PropertyInspectorDidDisappear:
                         {
                             var e = (PropertyInspectorDidDisappearEvent)actionEvent;
-                            action.PropertyInspectorDidDisappear();
-                            await action.PropertyInspectorDidDisappearAsync();
+                            OnPropertyInspectorDidDisappear?.Invoke(this, e);
                             break;
                         }
                     case ElgatoEventType.SendToPlugin:
                         {
                             var e = (SendToPluginEvent)actionEvent;
-                            action.SendToPlugin(e.payload);
-                            await action.SendToPluginAsync(e.payload);
+                            OnSendToPlugin?.Invoke(this, e);
                             break;
                         }
                 }
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Unhandled error in action {action}", action);
+                _logger.LogError(e, "Unhandled error in event subscriber.");
             }
         }
-
     }
 }

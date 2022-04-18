@@ -17,9 +17,6 @@ namespace tech.aerove.streamdeck.client
 {
     public class WebSocketService : BackgroundService
     {
-        //Todo: Test ClientWebSocket For Mac
-        //It's unclear if this works on mac. 
-        //If not I need to make my own implementation
         private ClientWebSocket Socket = new ClientWebSocket();
         private CancellationToken StoppingToken { get; set; }
         private readonly SemaphoreSlim SendLock = new SemaphoreSlim(1);
@@ -28,12 +25,14 @@ namespace tech.aerove.streamdeck.client
         private readonly ILogger<WebSocketService> _logger;
         private readonly StreamDeckInfo StreamDeckInfo;
         private readonly IElgatoEventHandler _eventHandler;
-        public WebSocketService(IConfiguration configuration, ILogger<WebSocketService> logger, StreamDeckInfo streamDeckInfo, IElgatoEventHandler eventHandler)
+        private readonly EventManager _globalEvents;
+        public WebSocketService(IConfiguration configuration, ILogger<WebSocketService> logger, StreamDeckInfo streamDeckInfo, IElgatoEventHandler eventHandler, EventManager globalEvents)
         {
             _configuration = configuration;
             _logger = logger;
             StreamDeckInfo = streamDeckInfo;
             _eventHandler = eventHandler;
+            _globalEvents = globalEvents;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -131,7 +130,8 @@ namespace tech.aerove.streamdeck.client
 
                     try
                     {
-                        await _eventHandler.HandleIncoming(result);
+                        var elgatoEvent = await _eventHandler.HandleIncoming(result);
+                        _globalEvents.HandleIncoming(elgatoEvent);
                     }
                     catch (Exception e)
                     {

@@ -12,36 +12,32 @@ namespace tech.aerove.streamdeck.client
 {
     public static class IServiceCollectionExtensions
     {
+
+        /// <summary>
+        /// Adds the Aerove Stream Deck Client to your project.
+        /// This handles are the hard work of communicating with the stream deck
+        /// while providing a lot of QOL features making plugin development easy.
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="context"></param>
+        /// <param name="args"></param>
         public static void AddAeroveStreamDeckClient(this IServiceCollection services, HostBuilderContext context, string[] args)
         {
             var config = context.Configuration;
-            var logParametersOnly = config.GetValue<bool>("DevLogParametersOnly");
-            if (logParametersOnly)
-            {
-                VSDebugHandler.OutputArgs(args);
-            }
-            var devDebug = config.GetValue<bool>("DevDebug");
-            if (devDebug)
-            {
-                var newArgs = VSDebugHandler.DevDebug(config);
-                args = newArgs == null?args:newArgs;
-            }
 
-
-            services.AddSingleton<WebSocketService>();
-            services.AddHostedService<WebSocketService>(provider => provider.GetService<WebSocketService>());
-
-
-            services.AddSingleton<IElgatoEventHandler, DefaultElgatoEventHandler>();
-            services.AddSingleton<IElgatoDispatcher, DefaultElgatoDispatcher>();
-            services.AddTransient<ManifestInfo>();
-
+            VSDebugHandler.OutputArgs(config, args);
+            args = VSDebugHandler.DevDebug(config) ?? args;
 
             services.AddSingleton<StreamDeckInfo>(x => new StreamDeckInfo(x.GetRequiredService<ILogger<StreamDeckInfo>>(), args.ToList()));
-
+            services.AddSingleton<WebSocketService>();
+            services.AddTransient<ManifestInfo>();
+            services.AddHostedService<WebSocketService>(provider => provider.GetService<WebSocketService>());
+            services.AddSingleton<IElgatoEventHandler, DefaultElgatoEventHandler>();
+            services.AddSingleton<IElgatoDispatcher, DefaultElgatoDispatcher>();
             services.AddSingleton<IActionFactory, DefaultActionFactory>();
             services.AddSingleton<IActionExecuter, DefaultActionExecuter>();
             services.AddSingleton<ICache, DefaultCache>();
+            services.AddSingleton<EventManager>();
 
         }
 

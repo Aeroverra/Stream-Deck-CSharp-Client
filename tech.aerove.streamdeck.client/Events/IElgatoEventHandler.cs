@@ -11,6 +11,6 @@ namespace tech.aerove.streamdeck.client.Events
     /// </summary>
     public interface IElgatoEventHandler
     {
-        Task HandleIncoming(string message);
+        Task<IElgatoEvent?> HandleIncoming(string message);
     }
 }

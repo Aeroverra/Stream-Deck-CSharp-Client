@@ -8,15 +8,47 @@ using System.Threading.Tasks;
 
 namespace tech.aerove.streamdeck.client.Startup
 {
+    /// <summary>
+    /// Magic behind the no restart easy debug by Aeroverra
+    /// </summary>
     internal static class VSDebugHandler
     {
-        public static void OutputArgs(string[] args)
+        /// <summary>
+        /// Checks if DevLogParametersOnly is set to true and if so
+        /// outputs a file with the starting args to be used by the debugging app.
+        /// The websocket will also not be opened.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="args">Startup args</param>
+        public static void OutputArgs(IConfiguration config, string[] args)
         {
+            var logParametersOnly = config.GetValue<bool>("DevLogParametersOnly");
+            if (!logParametersOnly)
+            {
+                return;
+            }
             File.WriteAllText("args.txt", string.Join(Environment.NewLine, args));
         }
+
+
+        /// <summary>
+        /// Checks if DevDebug is true and if so updates the necessary files in the
+        /// elgato plugin folder including a new appsettings setting 
+        /// DevLogParametersOnly to true. The plugin process is then killed causing 
+        /// the stream deck to restart the process. The DevLogParametersOnly outputs
+        /// the newly passed args to a txt file and prevents the socket from connecting.
+        /// The actual child process remains running but not functioning allowing
+        /// us to debug and connect with those args.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
         public static string[]? DevDebug(IConfiguration config)
         {
-
+            var devDebug = config.GetValue<bool>("DevDebug");
+            if (!devDebug)
+            {
+                return null;
+            }
             var elgatoPluginFolder = config.GetValue<string>("ElgatoPluginPath");
             var currentExecutablePath = Environment.ProcessPath;
             var currentExecutableFolder = Path.GetDirectoryName(currentExecutablePath);
@@ -26,11 +58,12 @@ namespace tech.aerove.streamdeck.client.Startup
                 Console.WriteLine("DevDebug is on within the plugins folder. This should not happen.");
                 return null;
             }
-            var newArgs = MoveFiles(elgatoPluginFolder, currentExecutableFolder, executableName);
+            var newArgs = UpdateFiles(elgatoPluginFolder, currentExecutableFolder, executableName);
             return newArgs;
 
         }
-        private static string[]? MoveFiles(string elgatoPath, string currentPath, string executableName)
+
+        private static string[]? UpdateFiles(string elgatoPath, string currentPath, string executableName)
         {
             File.Delete($"{elgatoPath}\\args.txt");
             File.Delete($"{elgatoPath}\\appsettings.json");
@@ -54,7 +87,7 @@ namespace tech.aerove.streamdeck.client.Startup
             {
                 if (!File.Exists($"{elgatoPath}\\args.txt"))
                 {
-                    Thread.Sleep(x*500);
+                    Thread.Sleep(x * 500);
                     continue;
                 }
                 Console.WriteLine("Args read successfully!");
@@ -63,6 +96,7 @@ namespace tech.aerove.streamdeck.client.Startup
             Console.WriteLine("Could not read new args!");
             return null;
         }
+
         private static bool MatchesPath(this Process process, string path)
         {
             try
@@ -79,6 +113,7 @@ namespace tech.aerove.streamdeck.client.Startup
             }
             return false;
         }
+
         private static bool HasFileName(this Process process, string executableName)
         {
             try

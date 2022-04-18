@@ -31,7 +31,7 @@ namespace tech.aerove.streamdeck.client.Events
             _dispatcher = dispatcher;
         }
 
-        public async Task HandleIncoming(string message)
+        public async Task<IElgatoEvent?> HandleIncoming(string message)
         {
             if (!FirstEventHandled)
             {
@@ -44,12 +44,12 @@ namespace tech.aerove.streamdeck.client.Events
             if (elgatoEvent == null)
             {
                 _logger.LogWarning("Could not parse event: {resultString}", message);
-                return;
+                return elgatoEvent;
             }
             if (AwaitingInitialGlobalSettings && elgatoEvent.Event != ElgatoEventType.DidReceiveGlobalSettings)
             {
                 PendingMessages.Add(message);
-                return;
+                return elgatoEvent;
             }
 
             _logger.LogDebug("Received: {eventtype}", elgatoEvent.Event);
@@ -61,12 +61,14 @@ namespace tech.aerove.streamdeck.client.Events
             if (AwaitingInitialGlobalSettings)
             {
                 AwaitingInitialGlobalSettings = false;
-                foreach(var pendingmessage in PendingMessages)
+                foreach (var pendingmessage in PendingMessages)
                 {
                     await HandleIncoming(pendingmessage);
                 }
             }
+            return elgatoEvent;
         }
+
 
 
     }
