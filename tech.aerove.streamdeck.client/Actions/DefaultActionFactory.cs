@@ -194,7 +194,7 @@ namespace tech.aerove.streamdeck.client.Actions
                     var resolvable = true;
                     foreach (var parameter in parameters)
                     {
-                        var service = scope.ServiceProvider.GetRequiredService(parameter.ParameterType);
+                        var service = scope.ServiceProvider.GetService(parameter.ParameterType);
 
                         if (service == null)
                         {

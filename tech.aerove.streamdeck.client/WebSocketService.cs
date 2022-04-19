@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using tech.aerove.streamdeck.client.Actions;
 using tech.aerove.streamdeck.client.Events;
+using tech.aerove.streamdeck.client.Pipeline;
 using tech.aerove.streamdeck.client.Startup;
 
 namespace tech.aerove.streamdeck.client
@@ -24,15 +25,13 @@ namespace tech.aerove.streamdeck.client
         private readonly IConfiguration _configuration;
         private readonly ILogger<WebSocketService> _logger;
         private readonly StreamDeckInfo StreamDeckInfo;
-        private readonly IElgatoEventHandler _eventHandler;
-        private readonly EventManager _globalEvents;
-        public WebSocketService(IConfiguration configuration, ILogger<WebSocketService> logger, StreamDeckInfo streamDeckInfo, IElgatoEventHandler eventHandler, EventManager globalEvents)
+        private readonly IPipeline _pipeline;
+        public WebSocketService(IConfiguration configuration, ILogger<WebSocketService> logger, StreamDeckInfo streamDeckInfo, IPipeline pipeline)
         {
             _configuration = configuration;
             _logger = logger;
             StreamDeckInfo = streamDeckInfo;
-            _eventHandler = eventHandler;
-            _globalEvents = globalEvents;
+            _pipeline = pipeline;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -130,8 +129,7 @@ namespace tech.aerove.streamdeck.client
 
                     try
                     {
-                        var elgatoEvent = await _eventHandler.HandleIncoming(result);
-                        _globalEvents.HandleIncoming(elgatoEvent);
+                        await _pipeline.HandleIncoming(result);
                     }
                     catch (Exception e)
                     {
@@ -148,8 +146,6 @@ namespace tech.aerove.streamdeck.client
             }
 
         }
-
-
 
         public async Task SendAsync(object message)
         {
