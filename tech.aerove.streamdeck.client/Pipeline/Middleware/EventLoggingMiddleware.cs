@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +26,11 @@ namespace tech.aerove.streamdeck.client.Pipeline.Middleware
 
         public override Task HandleOutgoing(object message)
         {
-            throw new NotImplementedException();
+            var messageString = JsonConvert.SerializeObject(message);
+            var jo =  JObject.Parse(messageString);
+            string eventType = $"{jo["Event"]}";
+            _logger.LogDebug("Sending Event Type: {eventtype} Data: {outgoingevent}", eventType, messageString);
+            return NextDelegate.InvokeNextOutgoing(message);
         }
     }
 }

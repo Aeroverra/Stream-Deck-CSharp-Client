@@ -53,7 +53,7 @@ namespace tech.aerove.streamdeck.client.Pipeline.Middleware
 
         public override Task HandleOutgoing(object message)
         {
-            throw new NotImplementedException();
+            return NextDelegate.InvokeNextOutgoing(message);
         }
     }
 }

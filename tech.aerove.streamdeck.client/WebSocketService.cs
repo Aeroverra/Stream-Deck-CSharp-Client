@@ -32,6 +32,7 @@ namespace tech.aerove.streamdeck.client
             _logger = logger;
             StreamDeckInfo = streamDeckInfo;
             _pipeline = pipeline;
+            _pipeline.SetWebSocket(this);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)

@@ -5,31 +5,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using tech.aerove.streamdeck.client.Pipeline;
 using tech.aerove.streamdeck.client.Startup;
 
 namespace tech.aerove.streamdeck.client
 {
     public class DefaultElgatoDispatcher : IElgatoDispatcher
     {
-        private WebSocketService _socket
+        private IPipeline _pipeline
         {
             get
             {
-                if (underlyingSocket == null)
+                if (underlyingPipeline == null)
                 {
-                    underlyingSocket = _services.GetService<WebSocketService>();
+                    underlyingPipeline = _serviceProvider.GetService<IPipeline>();
                 }
-                return underlyingSocket;
+                return underlyingPipeline;
             }
         }
-        private WebSocketService? underlyingSocket { get; set; }
+        private IPipeline? underlyingPipeline { get; set; }
         private readonly StreamDeckInfo _streamDeckInfo;
-        private readonly IServiceProvider _services;
-        public DefaultElgatoDispatcher(IServiceProvider services, StreamDeckInfo streamDeckInfo)
+        private readonly IServiceProvider _serviceProvider;
+        public DefaultElgatoDispatcher(StreamDeckInfo streamDeckInfo, IServiceProvider serviceProvider)
         {
-            //serviceprovider to avoid circular refrence
-            _services = services;
             _streamDeckInfo = streamDeckInfo;
+            //serviceprovider to avoid circular refrence 
+            _serviceProvider = serviceProvider;
         }
 
         public void SendRegisterEvent()
@@ -44,7 +45,7 @@ namespace tech.aerove.streamdeck.client
                 UUID = _streamDeckInfo.PluginUUID,
                 Event = _streamDeckInfo.RegisterEvent
             };
-            return _socket.SendAsync(message);
+            return _pipeline.HandleOutgoing(message);
         }
 
         public void SetSettings(string context, object settings)
@@ -60,7 +61,7 @@ namespace tech.aerove.streamdeck.client
                 Context = context,
                 Payload = settings
             };
-            return _socket.SendAsync(message);
+            return _pipeline.HandleOutgoing(message);
         }
 
 
@@ -77,7 +78,7 @@ namespace tech.aerove.streamdeck.client
                 Event = "getSettings",
                 Context = context,
             };
-            return _socket.SendAsync(message);
+            return _pipeline.HandleOutgoing(message);
         }
 
         public void SetGlobalSettings(object settings)
@@ -94,7 +95,7 @@ namespace tech.aerove.streamdeck.client
                 Context = _streamDeckInfo.PluginUUID,
                 Payload = settings
             };
-            return _socket.SendAsync(message);
+            return _pipeline.HandleOutgoing(message);
         }
 
         public void GetGlobalSettings()
@@ -110,7 +111,7 @@ namespace tech.aerove.streamdeck.client
                 Event = "getGlobalSettings",
                 Context = _streamDeckInfo.PluginUUID,
             };
-            return _socket.SendAsync(message);
+            return _pipeline.HandleOutgoing(message);
         }
 
         public void OpenUrl(string url)
@@ -129,7 +130,7 @@ namespace tech.aerove.streamdeck.client
                     Url = url
                 }
             };
-            return _socket.SendAsync(message);
+            return _pipeline.HandleOutgoing(message);
         }
 
         public void LogMessage(string message)
@@ -148,7 +149,7 @@ namespace tech.aerove.streamdeck.client
                     message
                 }
             };
-            return _socket.SendAsync(message2);
+            return _pipeline.HandleOutgoing(message2);
         }
 
         public void SetTitle(string context, string title, int target = 0, int? state = null)
@@ -170,7 +171,7 @@ namespace tech.aerove.streamdeck.client
                     State = state
                 }
             };
-            return _socket.SendAsync(message);
+            return _pipeline.HandleOutgoing(message);
         }
 
         public void SetImage(string context, string image, int target = 0, int? state = null)
@@ -192,7 +193,7 @@ namespace tech.aerove.streamdeck.client
                     State = state
                 }
             };
-            return _socket.SendAsync(message);
+            return _pipeline.HandleOutgoing(message);
         }
 
         public void ShowAlert(string context)
@@ -208,7 +209,7 @@ namespace tech.aerove.streamdeck.client
                 Event = "showAlert",
                 Context = context,
             };
-            return _socket.SendAsync(message);
+            return _pipeline.HandleOutgoing(message);
         }
 
         public void ShowOk(string context)
@@ -224,7 +225,7 @@ namespace tech.aerove.streamdeck.client
                 Event = "showOk",
                 Context = context,
             };
-            return _socket.SendAsync(message);
+            return _pipeline.HandleOutgoing(message);
         }
 
         public void SetState(string context, int state)
@@ -244,7 +245,7 @@ namespace tech.aerove.streamdeck.client
                     State = state
                 }
             };
-            return _socket.SendAsync(message);
+            return _pipeline.HandleOutgoing(message);
         }
 
         public void SwitchToProfile(string device, string profile)
@@ -265,7 +266,7 @@ namespace tech.aerove.streamdeck.client
                     Profile = profile
                 }
             };
-            return _socket.SendAsync(message);
+            return _pipeline.HandleOutgoing(message);
         }
 
         public void SendToPropertyInspector(string context, string action, object data)
@@ -283,7 +284,7 @@ namespace tech.aerove.streamdeck.client
                 Context = context,
                 Payload = data
             };
-            return _socket.SendAsync(message);
+            return _pipeline.HandleOutgoing(message);
         }
 
     }

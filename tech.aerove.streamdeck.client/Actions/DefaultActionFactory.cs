@@ -21,7 +21,6 @@ namespace tech.aerove.streamdeck.client.Actions
     }
     internal class DefaultActionFactory : IActionFactory
     {
-
         private readonly IServiceProvider _services;
         private readonly ILogger<DefaultActionFactory> _logger;
         private readonly ICache _cache;
