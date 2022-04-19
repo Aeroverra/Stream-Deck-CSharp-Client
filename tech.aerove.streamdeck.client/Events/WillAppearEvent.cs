@@ -14,5 +14,15 @@ namespace tech.aerove.streamdeck.client.Events
         public string Context { get; set; }
         public string Device { get; set; }
         public Payload Payload { get; set; }
+
+        //added by StreamDeckAnalyzerMiddelware
+        public string? ProfileName { get; set; }
+        public string? FolderName { get; set; }
+        public int? Page { get; set; }
+        public string? PageId { get; set; }
+        public string? FolderId { get; set; }
+        public string? ProfileId { get; set; }
+        public bool? CreatedNow { get; set; }
+
     }
 }
