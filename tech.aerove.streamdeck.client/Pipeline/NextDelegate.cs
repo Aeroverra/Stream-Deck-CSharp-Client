@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,8 +11,8 @@ namespace tech.aerove.streamdeck.client.Pipeline
     public class NextDelegate
     {
         public Func<IElgatoEvent, Task> InvokeNextIncoming { get; private set; }
-        public Func<object, Task> InvokeNextOutgoing { get; private set; }
-        internal NextDelegate(Func<IElgatoEvent, Task> nextIncoming, Func<object, Task> nextOutgoing)
+        public Func<JObject, Task> InvokeNextOutgoing { get; private set; }
+        internal NextDelegate(Func<IElgatoEvent, Task> nextIncoming, Func<JObject, Task> nextOutgoing)
         {
             InvokeNextIncoming = nextIncoming;
             InvokeNextOutgoing = nextOutgoing;

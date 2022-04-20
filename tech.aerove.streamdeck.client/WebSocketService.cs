@@ -2,9 +2,11 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Net.WebSockets;
 using System.Text;
@@ -150,6 +152,16 @@ namespace tech.aerove.streamdeck.client
 
         public async Task SendAsync(object message)
         {
+
+            if(message is JObject)
+            {
+                //Convert casing because the default  converter does not handle jobjects properly
+                //causing the streamdeck to ignore events
+                message = JObject.FromObject((message as JObject).ToObject<ExpandoObject>(), JsonSerializer.Create(new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                }));
+            }
             var settings = new JsonSerializerSettings
             {
                 ContractResolver = new DefaultContractResolver
@@ -174,6 +186,7 @@ namespace tech.aerove.streamdeck.client
                 SendLock.Release();
             }
         }
+
 
         private async Task DisconnectAsync()
         {

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,7 +39,7 @@ namespace tech.aerove.streamdeck.client.Pipeline
             return this;
         }
 
-        internal NextDelegate Build(Func<IElgatoEvent, Task> finalIncoming, Func<object, Task> finalOutgoing)
+        internal NextDelegate Build(Func<IElgatoEvent, Task> finalIncoming, Func<JObject, Task> finalOutgoing)
         {
             var nextDelegate = new NextDelegate(finalIncoming, finalOutgoing);
             var TypeList = Types.ToList();

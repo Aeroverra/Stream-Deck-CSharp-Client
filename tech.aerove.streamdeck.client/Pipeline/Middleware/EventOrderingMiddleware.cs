@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,7 +52,7 @@ namespace tech.aerove.streamdeck.client.Pipeline.Middleware
             }
         }
 
-        public override Task HandleOutgoing(object message)
+        public override Task HandleOutgoing(JObject message)
         {
             return NextDelegate.InvokeNextOutgoing(message);
         }

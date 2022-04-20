@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -14,22 +15,29 @@ namespace tech.aerove.streamdeck.client.Pipeline.Middleware
     internal class EventLoggingMiddleware : MiddlewareBase
     {
         private readonly ILogger<EventLoggingMiddleware> _logger;
-        public EventLoggingMiddleware(ILogger<EventLoggingMiddleware> logger)
+        private Formatting Format = Formatting.None;
+        public EventLoggingMiddleware(ILogger<EventLoggingMiddleware> logger, IConfiguration config)
         {
             _logger = logger;
+            if (config.GetValue<bool>("ElgatoEventLoggingFormatted", false))
+            {
+                Format = Formatting.Indented;
+            }
+            if (config["ElgatoEventLogging"] == null || config["ElgatoEventLoggingFormatted"] == null)
+            {
+                _logger.LogDebug("Elgato event logging is enabled. To disable this set 'ElgatoEventLogging' to false in your appsettings. For pretty json set 'ElgatoEventLoggingFormatted' to true.");
+            }
         }
         public override Task HandleIncoming(IElgatoEvent message)
         {
-            _logger.LogDebug("Received Event Type: {eventtype} Data: {incomingevent}",message.Event, JsonConvert.SerializeObject(message));
+            _logger.LogDebug("[{direction}] Event Type: {eventtype} Data: {incomingevent}", "Received", message.Event, JsonConvert.SerializeObject(message, Format));
             return NextDelegate.InvokeNextIncoming(message);
         }
 
-        public override Task HandleOutgoing(object message)
+        public override Task HandleOutgoing(JObject message)
         {
-            var messageString = JsonConvert.SerializeObject(message);
-            var jo =  JObject.Parse(messageString);
-            string eventType = $"{jo["Event"]}";
-            _logger.LogDebug("Sending Event Type: {eventtype} Data: {outgoingevent}", eventType, messageString);
+            string eventType = $"{message["Event"]}";
+            _logger.LogDebug("[{direction}] Event Type: {eventtype} Data: {outgoingevent}", "Sending", eventType, message.ToString(Format));
             return NextDelegate.InvokeNextOutgoing(message);
         }
     }

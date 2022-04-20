@@ -11,10 +11,10 @@ using tech.aerove.streamdeck.client.Events;
 
 namespace tech.aerove.streamdeck.client.Pipeline.Middleware
 {
-    internal class StreamDeckAnalyzerMiddleware : MiddlewareBase
+    internal class SDAnalyzerMiddleware : MiddlewareBase
     {
         private readonly ILogger<EventLoggingMiddleware> _logger;
-        public StreamDeckAnalyzerMiddleware(ILogger<EventLoggingMiddleware> logger)
+        public SDAnalyzerMiddleware(ILogger<EventLoggingMiddleware> logger)
         {
             _logger = logger;
         }
@@ -23,7 +23,7 @@ namespace tech.aerove.streamdeck.client.Pipeline.Middleware
             return NextDelegate.InvokeNextIncoming(message);
         }
 
-        public override Task HandleOutgoing(object message)
+        public override Task HandleOutgoing(JObject message)
         {
             return NextDelegate.InvokeNextOutgoing(message);
         }

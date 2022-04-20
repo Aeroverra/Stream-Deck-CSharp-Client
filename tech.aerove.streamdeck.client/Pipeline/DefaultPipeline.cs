@@ -1,6 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -55,9 +59,11 @@ namespace tech.aerove.streamdeck.client.Pipeline
 
         public async Task HandleOutgoing(object message)
         {
-            await _nextDelegate.InvokeNextOutgoing(message);
+            var settings = new JsonSerializerSettings { ContractResolver = new DefaultContractResolver { NamingStrategy = new CamelCaseNamingStrategy() } };
+            var json = JsonConvert.SerializeObject(message, settings);
+            await _nextDelegate.InvokeNextOutgoing(JObject.Parse(json));
         }
-        private Task HandleOutgoingFinal(object message)
+        private Task HandleOutgoingFinal(JObject message)
         {
             return _socket.SendAsync(message);
         }
