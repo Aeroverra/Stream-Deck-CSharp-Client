@@ -124,7 +124,7 @@ namespace tech.aerove.streamdeck.client
                         }
                         if (response.MessageType == WebSocketMessageType.Binary)
                         {
-                            _logger.LogError("Recieved binary instead of text from Elgato. {Binary}", buffer.Take(response.Count).ToArray());
+                            _logger.LogError("Received binary instead of text from Elgato. {Binary}", buffer.Take(response.Count).ToArray());
                             continue;
                         }
                     }

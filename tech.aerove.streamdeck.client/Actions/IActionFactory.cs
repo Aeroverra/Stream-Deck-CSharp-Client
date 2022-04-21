@@ -13,7 +13,7 @@ namespace tech.aerove.streamdeck.client.Actions
         /// Returns a list of instances related to this action which should then 
         /// be executed based on the event
         /// </summary>
-        /// <param name="elgatoEvent">A recieved elgato event</param>
+        /// <param name="elgatoEvent">A Received elgato event</param>
         /// <returns></returns>
         List<ActionBase> CreateActions(IElgatoEvent elgatoEvent);
     }

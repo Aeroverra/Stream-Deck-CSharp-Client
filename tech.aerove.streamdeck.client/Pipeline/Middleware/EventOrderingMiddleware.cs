@@ -12,7 +12,7 @@ namespace tech.aerove.streamdeck.client.Pipeline.Middleware
 {
     /// <summary>
     /// Holds all incoming event messages at start until the global settings are
-    /// Recieved. This ensures all data is available when actions are called.
+    /// Received. This ensures all data is available when actions are called.
     /// </summary>
     internal class EventOrderingMiddleware : MiddlewareBase
     {
@@ -30,7 +30,7 @@ namespace tech.aerove.streamdeck.client.Pipeline.Middleware
         {
             if (!FirstEventHandled)
             {
-                _logger.LogDebug("Recieved first message. Holding messages until global settings are received!");
+                _logger.LogDebug("Received first message. Holding messages until global settings are received!");
                 FirstEventHandled = true;
                 await _dispatcher.GetGlobalSettingsAsync();
             }

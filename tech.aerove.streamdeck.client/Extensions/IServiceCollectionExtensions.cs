@@ -8,6 +8,7 @@ using tech.aerove.streamdeck.client.Cache;
 using tech.aerove.streamdeck.client.Events;
 using tech.aerove.streamdeck.client.Pipeline;
 using tech.aerove.streamdeck.client.Pipeline.Middleware;
+using tech.aerove.streamdeck.client.SDAnalyzer;
 using tech.aerove.streamdeck.client.Startup;
 
 namespace tech.aerove.streamdeck.client
@@ -44,6 +45,7 @@ namespace tech.aerove.streamdeck.client
             services.AddSingleton<IElgatoDispatcher, DefaultElgatoDispatcher>();
 
 
+
             if (config.GetValue<bool>("ElgatoEventLogging", true))
             {
                 services.AddMiddleware<EventLoggingMiddleware>();
@@ -52,6 +54,11 @@ namespace tech.aerove.streamdeck.client
             services.AddMiddleware<EventOrderingMiddleware>();
             services.AddMiddleware<AeroveMiddleware>();
 
+            if (config.GetValue<bool>("SDAnalyzerEnabled", true))
+            {
+                services.AddSingleton<SDAnalyzerService>();
+                services.AddMiddleware<SDAnalyzerMiddleware>();
+            }
 
 
             services.AddSingleton(x =>

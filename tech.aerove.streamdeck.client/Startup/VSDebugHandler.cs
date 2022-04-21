@@ -74,6 +74,7 @@ namespace tech.aerove.streamdeck.client.Startup
             return newArgs;
 
         }
+       
         private static bool RestartStreamDeckAndMoveNewFiles(string elgatoPath, string currentPath)
         {
             Console.WriteLine("Attempting to fix devdebug by restarting stream deck and copying new files.");
@@ -120,7 +121,8 @@ namespace tech.aerove.streamdeck.client.Startup
 
             return true;
         }
-        private static string[]? UpdateFiles(string elgatoPath, string currentPath, string executableName)
+        
+        private static string[]? UpdateFiles(string elgatoPath, string currentPath, string executableName, bool secondAttempt = false)
         {
             Directory.CreateDirectory(elgatoPath);
             File.Delete($"{elgatoPath}\\args.txt");
@@ -151,12 +153,15 @@ namespace tech.aerove.streamdeck.client.Startup
             }
 
             Console.WriteLine("Reading new args");
-            //waits for a max of 11250 ms
+            //waits for a max of 11250 ms first attempt
+            var multiplier = 250;
+            //takes longer to restart stream deck
+            if (secondAttempt) { multiplier = 750; }
             for (int x = 0; x < 10; x++)
             {
                 if (!File.Exists($"{elgatoPath}\\args.txt"))
                 {
-                    Thread.Sleep(x * 250);
+                    Thread.Sleep(x * multiplier);
                     continue;
                 }
                 Console.WriteLine("Args read successfully!");

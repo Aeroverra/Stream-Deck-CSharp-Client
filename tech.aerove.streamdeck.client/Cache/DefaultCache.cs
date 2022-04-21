@@ -107,6 +107,20 @@ namespace tech.aerove.streamdeck.client.Cache
         private void WillAppear(WillAppearEvent e)
         {
             var device = Devices.SingleOrDefault(x => x.Id == e.Device);
+            //This needs to be here to handle when devices are not connected
+            if(device == null)
+            {
+                device = new Device
+                {
+                    Id = e.Device,
+                    Name = "UNKNOWN",
+                    Columns = -1,
+                    Rows = -1,
+                    Type = -1,
+                    IsConnected = false
+                };
+                Devices.Add(device);
+            }
             var instance = device.ActionInstances.SingleOrDefault(x => x.Id == e.Context);
             if (instance == null)
             {
@@ -189,17 +203,14 @@ namespace tech.aerove.streamdeck.client.Cache
             var device = Devices.SingleOrDefault(x => x.Id == e.Device);
             if (device == null)
             {
-                device = new Device
-                {
-                    Id = e.Device,
-                    Name = e.DeviceInfo.Name,
-                    Columns = e.DeviceInfo.Size.Columns,
-                    Rows = e.DeviceInfo.Size.Rows,
-                    Type = e.DeviceInfo.Type,
-                    IsConnected = true
-                };
+                device = new Device();
                 Devices.Add(device);
             }
+            device.Id = e.Device;
+            device.Name = e.DeviceInfo.Name;
+            device.Columns = e.DeviceInfo.Size.Columns;
+            device.Rows = e.DeviceInfo.Size.Rows;
+            device.Type = e.DeviceInfo.Type;
             device.IsConnected = true;
         }
     

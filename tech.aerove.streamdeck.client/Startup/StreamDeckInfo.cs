@@ -30,7 +30,7 @@ namespace tech.aerove.streamdeck.client.Startup
 
         public StreamDeckInfo(ILogger<StreamDeckInfo> logger, List<string> startupArgs)
         {
-            logger?.LogDebug("Startup Args Recieved....");
+            logger?.LogDebug("Startup Args Received....");
             foreach (var arg in startupArgs)
             {
                 logger?.LogInformation("{arg}", arg);
