@@ -45,15 +45,6 @@ namespace tech.aerove.streamdeck.client
             services.AddSingleton<IElgatoDispatcher, DefaultElgatoDispatcher>();
 
 
-
-            if (config.GetValue<bool>("ElgatoEventLogging", true))
-            {
-                services.AddMiddleware<EventLoggingMiddleware>();
-            }
-
-            services.AddMiddleware<EventOrderingMiddleware>();
-
-
             if (config.GetValue<bool>("SDAnalyzerEnabled", true))
             {
                 services.AddSingleton<SDAnalyzerService>();
@@ -64,8 +55,14 @@ namespace tech.aerove.streamdeck.client
             services.AddSingleton(x =>
             {
                 var builder = new MiddlewareBuilder(x, x.GetService<ILogger<MiddlewareBuilder>>());
+                if (config.GetValue<bool>("ElgatoEventLogging", true))
+                {
+                    services.AddMiddleware<EventLoggingMiddleware>();
+                }
                 services.AddMiddleware<AeroveMiddleware>();
+                services.AddMiddleware<EventOrderingMiddleware>();
                 MiddlewareTypes.ForEach(x => builder.Add(x));
+
                 return builder;
             });
 

@@ -13,6 +13,9 @@ using tech.aerove.streamdeck.client.Pipeline.Middleware;
 
 namespace tech.aerove.streamdeck.client.SDAnalyzer
 {
+    /// <summary>
+    /// This class relies on the event ordering middleware being in place to work properly
+    /// </summary>
     internal class SDAnalyzerMiddleware : MiddlewareBase
     {
         private readonly ILogger<EventLoggingMiddleware> _logger;
@@ -22,8 +25,19 @@ namespace tech.aerove.streamdeck.client.SDAnalyzer
             _logger = logger;
             _analyzer = analyzer;
         }
+        private bool FirstEventHandled = false;
         public override Task HandleIncoming(IElgatoEvent message)
         {
+            var e = message.Event;
+            if (!FirstEventHandled && e != ElgatoEventType.DidReceiveGlobalSettings)
+            {
+                return NextDelegate.InvokeNextIncoming(message);
+            }
+            if (!FirstEventHandled && e == ElgatoEventType.DidReceiveGlobalSettings)
+            {
+                FirstEventHandled = true;
+                _analyzer.HandleFirstLoad((DidReceiveGlobalSettingsEvent)message);
+            }
             return NextDelegate.InvokeNextIncoming(message);
         }
 

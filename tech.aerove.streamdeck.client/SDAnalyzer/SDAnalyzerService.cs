@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using tech.aerove.streamdeck.client.Events;
 using tech.aerove.streamdeck.client.SDAnalyzer.ManifestModels;
 using tech.aerove.streamdeck.client.Startup;
 
@@ -14,13 +15,15 @@ namespace tech.aerove.streamdeck.client.SDAnalyzer
     {
         private readonly StreamDeckInfo _streamDeckInfo;
         private readonly ILogger<SDAnalyzerService> _logger;
-        private string DataPath = "";
         private bool IsDisabled = false;
         private DirectoryInfo ProfileDir;
         private DirectoryInfo PluginDir;
         private List<ManifestInfo> PluginManifests = new List<ManifestInfo>();
-        public SDAnalyzerService(ILogger<SDAnalyzerService> logger, StreamDeckInfo streamDeckInfo)
+        private List<MProfile> LoadedProfiles = new List<MProfile>();
+        private List<String> PluginActionUUIDs = new List<String>();
+        public SDAnalyzerService(ILogger<SDAnalyzerService> logger, StreamDeckInfo streamDeckInfo, ManifestInfo manifestInfo)
         {
+            PluginActionUUIDs = manifestInfo.Actions.Select(x => x.Uuid).ToList();
             _streamDeckInfo = streamDeckInfo;
             _logger = logger;
             try
@@ -28,13 +31,10 @@ namespace tech.aerove.streamdeck.client.SDAnalyzer
                 SetPath();
                 DevScanData(ProfileDir);
                 ReadPluginManifests();
-                var startingProfiles = ReadProfiles(ProfileDir, null);
-                SetStateImagesFromPluginManifests(startingProfiles);
-                MapNavigationProperties(startingProfiles);
-                var multiactions = startingProfiles
-                    .Where(x => x.IsFolder)
-                    .Where(x => x.Actions.Count < 3)
-                    .ToList();
+                LoadedProfiles = ReadProfiles(ProfileDir, null);
+                SetStateImagesFromPluginManifests(LoadedProfiles);
+                MapNavigationProperties(LoadedProfiles);
+
             }
             catch (Exception e)
             {
@@ -46,6 +46,7 @@ namespace tech.aerove.streamdeck.client.SDAnalyzer
 
         private void SetPath()
         {
+            var DataPath = "";
             try
             {
                 var currentExecutablePath = Environment.ProcessPath;
@@ -95,6 +96,7 @@ namespace tech.aerove.streamdeck.client.SDAnalyzer
             _logger.LogCritical("SDAnalyzer Failed To Start.");
             IsDisabled = true;
         }
+
 
         /// <summary>
         /// Reads all the plugin manifests
@@ -196,14 +198,14 @@ namespace tech.aerove.streamdeck.client.SDAnalyzer
 
                 if (pluginManifest == null)
                 {
-                    _logger.LogWarning("Could not find manifest with action UUID '{uuid}'", action.Uuid);
+                    _logger.LogTrace("Could not find manifest with action UUID '{uuid}'", action.Uuid);
                     continue;
                 }
 
                 var pluginManifestAction = pluginManifest.Actions.SingleOrDefault(x => x.Uuid == action.Uuid);
                 if (pluginManifestAction == null)
                 {
-                    _logger.LogWarning("Could not find action with UUID '{uuid}' in plugin manifest", action.Uuid);
+                    _logger.LogTrace("Could not find action with UUID '{uuid}' in plugin manifest", action.Uuid);
                     continue;
                 }
                 foreach (var state in action.States)
@@ -212,20 +214,20 @@ namespace tech.aerove.streamdeck.client.SDAnalyzer
                     var stateIndex = action.States.IndexOf(state);
                     if (pluginManifestAction.States.Count < stateIndex + 1)
                     {
-                        _logger.LogWarning("State defined is higher than plugin manifest. state:'{state}' action:'{action}' ", stateIndex, action.Uuid);
+                        _logger.LogTrace("State defined is higher than plugin manifest. state:'{state}' action:'{action}' ", stateIndex, action.Uuid);
                         continue;
                     }
                     var pluginManifestState = pluginManifestAction.States[stateIndex];
                     if (String.IsNullOrWhiteSpace(pluginManifestState.Image))
                     {
-                        _logger.LogWarning("Image not set for state '{state}' in action '{action}'", stateIndex, action.Uuid);
+                        _logger.LogTrace("Image not set for state '{state}' in action '{action}'", stateIndex, action.Uuid);
                         continue;
                     }
                     var imagesPath = Path.Combine(pluginManifest.DirectoryInfo.FullName, pluginManifestState.Image);
                     var imagesDir = new DirectoryInfo(imagesPath).Parent;
                     if (imagesDir == null || !imagesDir.Exists)
                     {
-                        _logger.LogWarning("Image dir does not exist. state:'{state}' action:'{action}' ", stateIndex, action.Uuid);
+                        _logger.LogTrace("Image dir does not exist. state:'{state}' action:'{action}' ", stateIndex, action.Uuid);
                         continue;
                     }
                     //get image name without any paths
@@ -233,7 +235,7 @@ namespace tech.aerove.streamdeck.client.SDAnalyzer
                     var file = imagesDir.GetFiles().FirstOrDefault(x => x.Name.StartsWith(imageName));
                     if (file == null || !file.Exists)
                     {
-                        _logger.LogWarning("Image does not exist. state:'{state}' action:'{action}' ", stateIndex, action.Uuid);
+                        _logger.LogTrace("Image does not exist. state:'{state}' action:'{action}' ", stateIndex, action.Uuid);
                         continue;
                     }
                     var base64Image = Convert.ToBase64String(File.ReadAllBytes(file.FullName));
@@ -293,7 +295,7 @@ namespace tech.aerove.streamdeck.client.SDAnalyzer
                     var profileUUID = openFolderButton.Settings["ProfileUUID"]?.ToString();
                     if (profileUUID == null)
                     {
-                        _logger.LogTrace("ProfileUUID null on open folder action. {profile} {button}",profile.UUID,openFolderButton.Uuid);
+                        _logger.LogTrace("ProfileUUID null on open folder action. {profile} {button}", profile.UUID, openFolderButton.Uuid);
                         continue;
                     }
                     var buttonProfile = profiles.SingleOrDefault(x => x.UUID == profileUUID);
@@ -303,7 +305,7 @@ namespace tech.aerove.streamdeck.client.SDAnalyzer
                         continue;
                     }
                     buttonProfile.Parent = profile;
-                    if(!profile.Children.Any(x=>x == buttonProfile))
+                    if (!profile.Children.Any(x => x == buttonProfile))
                     {
                         profile.Children.Add(buttonProfile);
                     }
@@ -311,8 +313,6 @@ namespace tech.aerove.streamdeck.client.SDAnalyzer
 
             }
         }
-
-
 
         /// <summary>
         /// Scans for unknown file types and folders so we can find out if something new
@@ -388,6 +388,17 @@ namespace tech.aerove.streamdeck.client.SDAnalyzer
 
 
             }
+        }
+
+
+        public List<MProfile> HandleFirstLoad(DidReceiveGlobalSettingsEvent e)
+        {
+            var settings = e.Payload.Settings["AeroveSDAnalyzer"]?.ToObject<List<MProfile>>();
+            if(settings == null || settings.Count == 0)
+            {
+                return LoadedProfiles;
+            }
+            return LoadedProfiles;
         }
 
     }
