@@ -14,5 +14,8 @@ namespace tech.aerove.streamdeck.client.Events
         public string Context { get; set; }
         public string Device { get; set; }
         public Payload Payload { get; set; }
+
+        //added by StreamDeckAnalyzerMiddelware
+        public bool? WasDeleted { get; set; }
     }
 }

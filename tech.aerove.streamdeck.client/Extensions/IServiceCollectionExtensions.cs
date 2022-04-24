@@ -52,7 +52,7 @@ namespace tech.aerove.streamdeck.client
             }
 
             services.AddMiddleware<EventOrderingMiddleware>();
-            services.AddMiddleware<AeroveMiddleware>();
+
 
             if (config.GetValue<bool>("SDAnalyzerEnabled", true))
             {
@@ -64,6 +64,7 @@ namespace tech.aerove.streamdeck.client
             services.AddSingleton(x =>
             {
                 var builder = new MiddlewareBuilder(x, x.GetService<ILogger<MiddlewareBuilder>>());
+                services.AddMiddleware<AeroveMiddleware>();
                 MiddlewareTypes.ForEach(x => builder.Add(x));
                 return builder;
             });
@@ -73,7 +74,7 @@ namespace tech.aerove.streamdeck.client
 
         }
         private static List<Type> MiddlewareTypes = new List<Type>();
-        private static IServiceCollection AddMiddleware<T>(this IServiceCollection services) where T : MiddlewareBase
+        public static IServiceCollection AddMiddleware<T>(this IServiceCollection services) where T : MiddlewareBase
         {
             MiddlewareTypes.Add(typeof(T));
             return services;

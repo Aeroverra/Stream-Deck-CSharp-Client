@@ -18,11 +18,19 @@ namespace tech.aerove.streamdeck.client
         public string? CodePathMac { get; set; }
         public string Description { get; set; }
         public string Version { get; set; }
+        public DirectoryInfo DirectoryInfo { get; set; }
         public List<ManifestAction> Actions { get; set; } = new List<ManifestAction>();
         public List<ManifestProfile> Profiles { get; set; } = new List<ManifestProfile>();
-        public ManifestInfo()
+
+        public ManifestInfo() : this(new FileInfo("manifest.json"))
         {
-            string json = System.IO.File.ReadAllText("manifest.json");
+
+        }
+
+        public ManifestInfo(FileInfo file)
+        {
+            DirectoryInfo = file.Directory;
+            string json = System.IO.File.ReadAllText(file.FullName);
             JObject jo = JObject.Parse(json);
             Name = $"{jo["Name"]}";
             Author = $"{jo["Author"]}";
@@ -32,7 +40,7 @@ namespace tech.aerove.streamdeck.client
             CodePathMac = $"{jo["CodePathMac"] ?? null}";
             Description = $"{jo["Description"]}";
             Version = $"{jo["Version"]}";
-            Actions = JsonConvert.DeserializeObject<List<ManifestAction>>($"{jo["Actions"]}");
+            Actions = JsonConvert.DeserializeObject<List<ManifestAction>>($"{jo["Actions"]}")??Actions;
             if (jo["Profiles"] != null)
             {
                 Profiles = JsonConvert.DeserializeObject<List<ManifestProfile>>($"{jo["Profiles"]}");
