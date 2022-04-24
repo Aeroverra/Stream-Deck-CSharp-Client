@@ -1,0 +1,34 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace tech.aerove.streamdeck.client.Extensions
+{
+    public static class FileInfoExtensions
+    {
+        /// <summary>
+        /// Gets the file as a data url. Only supports images
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns>Data url or null</returns>
+        public static string? GetFileAsDataURL(this FileInfo file)
+        {
+            try
+            {
+                if (!file.Exists) { return null; }
+                var bytes = File.ReadAllBytes(file.FullName);
+                var base64String = Convert.ToBase64String(bytes);
+                var mediaType = file.Extension.Replace(".", "").Replace("svg", "svg+xml");
+                var dataURL = $"data:image/{mediaType};base64,{base64String}";
+                return dataURL;
+            }
+            catch
+            {
+                return null;
+            }
+       
+        }
+    }
+}

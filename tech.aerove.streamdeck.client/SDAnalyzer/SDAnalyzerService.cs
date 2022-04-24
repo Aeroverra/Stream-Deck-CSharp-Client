@@ -32,8 +32,13 @@ namespace tech.aerove.streamdeck.client.SDAnalyzer
                 DevScanData(ProfileDir);
                 ReadPluginManifests();
                 LoadedProfiles = ReadProfiles(ProfileDir, null);
-                SetStateImagesFromPluginManifests(LoadedProfiles);
                 MapNavigationProperties(LoadedProfiles);
+
+                var actions = LoadedProfiles.SelectMany(x => x.Actions).ToList();
+                var multiActions = actions.Where(x => x.IsMultiAction).SelectMany(x => x.Actions).ToList();
+                actions.AddRange(multiActions);
+                var states = actions.SelectMany(x => x.States).ToList();
+                var withoutImg = states.Where(x => x.ImageSource == ImageSource.Unknown).ToList();
 
             }
             catch (Exception e)
@@ -111,6 +116,7 @@ namespace tech.aerove.streamdeck.client.SDAnalyzer
                     continue;
                 }
                 var manifest = new ManifestInfo(manifestFile);
+                manifest.Setup();
                 PluginManifests.Add(manifest);
             }
         }
@@ -133,9 +139,8 @@ namespace tech.aerove.streamdeck.client.SDAnalyzer
                 if (file == null) { continue; }
 
                 var text = File.ReadAllText(file.FullName);
-                var profile = new MProfile(text, profileDirectory, parent);
+                var profile = new MProfile(text, profileDirectory, PluginManifests, parent);
                 profiles.Add(profile);
-                ReadActionFolders(profile);
 
                 var path = Path.Combine(profileDirectory.FullName, $"Profiles");
                 var innerProfilesDir = new DirectoryInfo(path);
@@ -148,107 +153,6 @@ namespace tech.aerove.streamdeck.client.SDAnalyzer
             return profiles;
         }
 
-        /// <summary>
-        /// Reads the action folders of a profile for images
-        /// ie: 0,1 1,0
-        /// </summary>
-        /// <param name="profile"></param>
-        private void ReadActionFolders(MProfile profile)
-        {
-
-            var pluginActions = PluginManifests.SelectMany(x => x.Actions).ToList();
-            foreach (var action in profile.Actions)
-            {
-                var path = Path.Combine(profile.Directory.FullName, $"{action.Col},{action.Row}/CustomImages");
-                var actionDirectory = new DirectoryInfo(path);
-                if (!actionDirectory.Exists) { continue; }
-                foreach (var file in actionDirectory.GetFiles())
-                {
-                    var state = action.States.FirstOrDefault(x => x.Image == file.Name);
-                    if (state == null) { continue; }
-                    var base64Image = Convert.ToBase64String(File.ReadAllBytes(file.FullName));
-                    var imgExtension = file.Extension.Replace(".", "");
-                    state.ImageData = $"data:image/{imgExtension};base64,{base64Image}";
-                    state.ImageSource = ImageSource.User;
-                }
-
-            }
-
-        }
-
-        /// <summary>
-        /// Sets image data from plugin manifests on any state without pre-existing data
-        /// </summary>
-        /// <param name="profiles"></param>
-        private void SetStateImagesFromPluginManifests(List<MProfile> profiles)
-        {
-            var actions = profiles
-                .SelectMany(x => x.Actions)
-                .ToList();
-            var innerMultiActions = actions
-                .Where(x => x.IsMultiAction)
-                .SelectMany(x => x.Actions)
-                .ToList();
-            actions.AddRange(innerMultiActions);
-            foreach (var action in actions)
-            {
-                var pluginManifest = PluginManifests
-                    .Where(x => x.Actions.Any(y => y.Uuid == action.Uuid))
-                    .SingleOrDefault();
-
-                if (pluginManifest == null)
-                {
-                    _logger.LogTrace("Could not find manifest with action UUID '{uuid}'", action.Uuid);
-                    continue;
-                }
-
-                var pluginManifestAction = pluginManifest.Actions.SingleOrDefault(x => x.Uuid == action.Uuid);
-                if (pluginManifestAction == null)
-                {
-                    _logger.LogTrace("Could not find action with UUID '{uuid}' in plugin manifest", action.Uuid);
-                    continue;
-                }
-                foreach (var state in action.States)
-                {
-                    if (!String.IsNullOrWhiteSpace(state.ImageData)) { continue; }
-                    var stateIndex = action.States.IndexOf(state);
-                    if (pluginManifestAction.States.Count < stateIndex + 1)
-                    {
-                        _logger.LogTrace("State defined is higher than plugin manifest. state:'{state}' action:'{action}' ", stateIndex, action.Uuid);
-                        continue;
-                    }
-                    var pluginManifestState = pluginManifestAction.States[stateIndex];
-                    if (String.IsNullOrWhiteSpace(pluginManifestState.Image))
-                    {
-                        _logger.LogTrace("Image not set for state '{state}' in action '{action}'", stateIndex, action.Uuid);
-                        continue;
-                    }
-                    var imagesPath = Path.Combine(pluginManifest.DirectoryInfo.FullName, pluginManifestState.Image);
-                    var imagesDir = new DirectoryInfo(imagesPath).Parent;
-                    if (imagesDir == null || !imagesDir.Exists)
-                    {
-                        _logger.LogTrace("Image dir does not exist. state:'{state}' action:'{action}' ", stateIndex, action.Uuid);
-                        continue;
-                    }
-                    //get image name without any paths
-                    var imageName = new FileInfo(pluginManifestState.Image).Name;
-                    var file = imagesDir.GetFiles().FirstOrDefault(x => x.Name.StartsWith(imageName));
-                    if (file == null || !file.Exists)
-                    {
-                        _logger.LogTrace("Image does not exist. state:'{state}' action:'{action}' ", stateIndex, action.Uuid);
-                        continue;
-                    }
-                    var base64Image = Convert.ToBase64String(File.ReadAllBytes(file.FullName));
-                    var imgExtension = file.Extension.Replace(".", "").Replace("svg", "svg+xml");
-                    state.ImageData = $"data:image/{imgExtension};base64,{base64Image}";
-                    state.ImageSource = ImageSource.PluginManifest;
-
-                }
-
-            }
-
-
-        }
 
         /// <summary>
         /// Maps the navigation properties like pages and folders together
@@ -394,7 +298,7 @@ namespace tech.aerove.streamdeck.client.SDAnalyzer
         public List<MProfile> HandleFirstLoad(DidReceiveGlobalSettingsEvent e)
         {
             var settings = e.Payload.Settings["AeroveSDAnalyzer"]?.ToObject<List<MProfile>>();
-            if(settings == null || settings.Count == 0)
+            if (settings == null || settings.Count == 0)
             {
                 return LoadedProfiles;
             }

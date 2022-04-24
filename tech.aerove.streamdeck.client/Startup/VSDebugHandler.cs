@@ -20,13 +20,14 @@ namespace tech.aerove.streamdeck.client.Startup
         /// </summary>
         /// <param name="config"></param>
         /// <param name="args">Startup args</param>
-        public static void OutputArgs(IConfiguration config, string[] args)
+        public static void OutputArgs(IConfiguration config)
         {
             var logParametersOnly = config.GetValue<bool>("DevLogParametersOnly");
             if (!logParametersOnly)
             {
                 return;
             }
+            string[] args = Environment.GetCommandLineArgs();
             File.WriteAllText("args.txt", string.Join(Environment.NewLine, args));
         }
 

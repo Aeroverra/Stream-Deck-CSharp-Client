@@ -24,11 +24,11 @@ namespace tech.aerove.streamdeck.client
         /// <param name="services"></param>
         /// <param name="context"></param>
         /// <param name="args"></param>
-        public static IServiceCollection AddAeroveStreamDeckClient(this IServiceCollection services, HostBuilderContext context, string[] args)
+        public static IServiceCollection AddAeroveStreamDeckClient(this IServiceCollection services, HostBuilderContext context)
         {
             var config = context.Configuration;
-
-            VSDebugHandler.OutputArgs(config, args);
+            string[] args = Environment.GetCommandLineArgs();
+            VSDebugHandler.OutputArgs(config);
             args = VSDebugHandler.DevDebug(config) ?? args;
 
             services.AddSingleton<StreamDeckInfo>(x => new StreamDeckInfo(x.GetRequiredService<ILogger<StreamDeckInfo>>(), args.ToList()));

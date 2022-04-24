@@ -39,7 +39,7 @@ namespace tech.aerove.streamdeck.client.SDAnalyzer.ManifestModels
 
 
 
-        internal MProfile(string json, DirectoryInfo directory, MProfile? parent = null)
+        internal MProfile(string json, DirectoryInfo directory, List<ManifestInfo> pluginManifests, MProfile? parent = null)
         {
             Directory = directory;
             UUID = directory.Name.Replace(".sdProfile", "");
@@ -61,22 +61,6 @@ namespace tech.aerove.streamdeck.client.SDAnalyzer.ManifestModels
                 action.Col = int.Parse(colrow[0]);
                 action.Row = int.Parse(colrow[1]);
                 Actions.Add(action);
-
-                //covers routine and routine2 aka multiactions
-                if (action.Uuid.Contains("com.elgato.streamdeck.multiactions.routine"))
-                {
-                    action.IsMultiAction = true;
-                    action.Actions = (action.Settings["Routine"] as JArray).ToObject<List<MAction>>();
-                    action.Actions.ForEach(x => x.IsRoutine = true);
-                    var actionAlts = (action.Settings["RoutineAlt"] as JArray).ToObject<List<MAction>>();
-                    action.Actions.AddRange(actionAlts);
-                    actionAlts.ForEach(x => x.IsRoutineAlt = true);
-                    action.Actions.ForEach(x =>
-                    {
-                        x.Col = action.Col;
-                        x.Row = action.Row;
-                    });
-                }
             }
             if (parent == null)
             {
@@ -93,6 +77,11 @@ namespace tech.aerove.streamdeck.client.SDAnalyzer.ManifestModels
             if (backButton != null)
             {
                 IsFolder = true;
+            }
+            
+            foreach(var action in Actions)
+            {
+                action.Setup(this, pluginManifests);
             }
         }
     }

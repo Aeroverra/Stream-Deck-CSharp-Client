@@ -40,10 +40,17 @@ namespace tech.aerove.streamdeck.client
             CodePathMac = $"{jo["CodePathMac"] ?? null}";
             Description = $"{jo["Description"]}";
             Version = $"{jo["Version"]}";
-            Actions = JsonConvert.DeserializeObject<List<ManifestAction>>($"{jo["Actions"]}")??Actions;
+            Actions = JsonConvert.DeserializeObject<List<ManifestAction>>($"{jo["Actions"]}") ?? Actions;
             if (jo["Profiles"] != null)
             {
                 Profiles = JsonConvert.DeserializeObject<List<ManifestProfile>>($"{jo["Profiles"]}");
+            }
+        }
+        public void Setup()
+        {
+            foreach (var action in Actions)
+            {
+                action.Setup(this);
             }
         }
     }
@@ -60,6 +67,18 @@ namespace tech.aerove.streamdeck.client
         public string Uuid { get; set; } = "";
         public string? PropertyInspectorPath { get; set; }
         public bool? DisableCaching { get; set; }
+
+        //custom
+        public ManifestInfo? ManifestInfo { get; set; }
+        public void Setup(ManifestInfo parent)
+        {
+            ManifestInfo = parent;
+            var index = 0;
+            foreach (var state in States)
+            {
+                state.Setup(this, index++);
+            }
+        }
     }
     public class ManifestActionState
     {
@@ -67,6 +86,35 @@ namespace tech.aerove.streamdeck.client
         public string Image { get; set; } = "";
         public string? Name { get; set; }
         public bool? OnlyForMultiAction { get; set; }
+
+
+        //custom
+        int? Index { get; set; }
+        public ManifestAction? ManifestAction { get; set; }
+        public FileInfo? ImageFile { get; set; }
+        public void Setup(ManifestAction parent, int index)
+        {
+            Index = index;
+            ManifestAction = parent;
+            if (String.IsNullOrWhiteSpace(Image))
+            {
+                return;
+            }
+            var imagesPath = Path.Combine(ManifestAction.ManifestInfo.DirectoryInfo.FullName, Image);
+            var imagesDir = new DirectoryInfo(imagesPath).Parent;
+            if (imagesDir == null || !imagesDir.Exists)
+            {
+                return;
+            }
+            //get image name without any paths. This is done this way because we don't know the extension
+            var imageName = new FileInfo(Image).Name;
+            var file = imagesDir.GetFiles().FirstOrDefault(x => x.Name.StartsWith(imageName));
+            if (file == null || !file.Exists)
+            {
+                return;
+            }
+            ImageFile = file;
+        }
     }
     public class ManifestProfile
     {
