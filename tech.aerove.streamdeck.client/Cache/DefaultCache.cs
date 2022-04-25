@@ -64,7 +64,7 @@ namespace tech.aerove.streamdeck.client.Cache
                      .SelectMany(x => x.ActionInstances)
                      .SingleOrDefault(x => x.Id == instanceId);
 
-            return new DefaultActionContext(GlobalSettings, instance);
+            return new DefaultActionContext(this, instance);
         }
         private void DidReceiveSettings(DidReceiveSettingsEvent e)
         {

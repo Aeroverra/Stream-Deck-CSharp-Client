@@ -40,6 +40,7 @@ namespace tech.aerove.streamdeck.client
             services.AddSingleton<MessageParser>();
             services.AddSingleton<ICache, DefaultCache>();
             services.AddSingleton<IActionFactory, DefaultActionFactory>();
+            //services.AddSingleton<IActionFactory, DefaultTransientActionFactory>();
             services.AddSingleton<IActionExecuter, DefaultActionExecuter>();
             services.AddSingleton<EventManager>();
             services.AddSingleton<IElgatoDispatcher, DefaultElgatoDispatcher>();

@@ -13,13 +13,8 @@ using tech.aerove.streamdeck.client.Startup;
 
 namespace tech.aerove.streamdeck.client.Actions
 {
-    internal class ActionInfo
-    {
-        public string UUID { get; set; }
-        public Type Type { get; set; }
-        public ConstructorInfo ConstructorInfo { get; set; }
-    }
-    internal class DefaultActionFactory : IActionFactory
+
+    internal class DefaultTransientActionFactory : IActionFactory
     {
         private readonly IServiceProvider _services;
         private readonly ILogger<DefaultTransientActionFactory> _logger;
@@ -27,8 +22,7 @@ namespace tech.aerove.streamdeck.client.Actions
         private readonly ManifestInfo _manifest;
         private readonly IElgatoDispatcher _dispatcher;
         private List<ActionInfo> ActionInfo = new List<ActionInfo>();
-        private Dictionary<string, ActionBase> Instances = new Dictionary<string, ActionBase>();
-        public DefaultActionFactory(IServiceProvider services, ILogger<DefaultTransientActionFactory> logger,
+        public DefaultTransientActionFactory(IServiceProvider services, ILogger<DefaultTransientActionFactory> logger,
             ICache cache, ManifestInfo manifest, IElgatoDispatcher dispatcher)
         {
             _services = services;
@@ -45,23 +39,12 @@ namespace tech.aerove.streamdeck.client.Actions
         {
             var instanceIds = GetInstanceIds(elgatoEvent);
             List<ActionBase> actions = new List<ActionBase>();
-            var existingKeys = new List<string>();
-            foreach (var instanceId in instanceIds)
-            {
-                var exists = Instances.Any(x => x.Key == instanceId);
-                if (!exists) { continue; }
-                var instance = Instances.Where(x => x.Key == instanceId).Select(x => x.Value).SingleOrDefault();
-                existingKeys.Add(instanceId);
-                actions.Add(instance);
-            }
-            instanceIds.RemoveAll(x => existingKeys.Contains(x));
             foreach (var instanceId in instanceIds)
             {
                 ActionBase action = GetInstance(instanceId);
                 if (action != null)
                 {
                     actions.Add(action);
-                    Instances.Add(instanceId, action);
                 }
             }
 
@@ -115,7 +98,7 @@ namespace tech.aerove.streamdeck.client.Actions
         {
             switch (elgatoEvent.Event)
             {
-                //global events without an instance specified
+                //global events without a device specified
                 case ElgatoEventType.DidReceiveGlobalSettings:
                 case ElgatoEventType.DeviceDidConnect:
                 case ElgatoEventType.DeviceDidDisconnect:

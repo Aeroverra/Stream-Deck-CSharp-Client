@@ -54,7 +54,7 @@ namespace tech.aerove.streamdeck.client.Pipeline.Middleware
 
         public override Task HandleOutgoing(JObject message)
         {
-            string eventType = $"{message["Event"]}";
+            string eventType = $"{message["event"]}";
             if (typeOnly)
             {
                 _logger.LogDebug("[{direction}] Event Type: {eventtype}", "Sending", eventType);
