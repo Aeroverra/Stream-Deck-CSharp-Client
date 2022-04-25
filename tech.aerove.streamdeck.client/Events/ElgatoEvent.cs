@@ -12,46 +12,69 @@ namespace tech.aerove.streamdeck.client.Events
     {
         public abstract ElgatoEventType Event { get; set; }
 
+        public virtual string Raw { get { return _Raw; } set { if (_Raw == "") { _Raw = value; } } } 
+        private string _Raw { get; set; } = "";
+
+        public virtual JObject RawJObject { get { return _RawJObject.DeepClone() as JObject; } set { if (_RawJObject == null) { _RawJObject = value; } } }
+        public virtual JObject _RawJObject { get; set; }
         public static ElgatoEvent? FromJson(string json)
         {
             JObject jsonObject = JObject.Parse(json);
 
             string eventName = jsonObject["event"].ToString();
             ElgatoEventType EventType = (ElgatoEventType)Enum.Parse(typeof(ElgatoEventType), eventName, true);
+            ElgatoEvent elgatoEvent = null;
             switch (EventType)
             {
                 case ElgatoEventType.DidReceiveSettings:
-                    return JsonConvert.DeserializeObject<DidReceiveSettingsEvent>(json);
+                    elgatoEvent = JsonConvert.DeserializeObject<DidReceiveSettingsEvent>(json);
+                    break;
                 case ElgatoEventType.DidReceiveGlobalSettings:
-                    return JsonConvert.DeserializeObject<DidReceiveGlobalSettingsEvent>(json);
+                    elgatoEvent = JsonConvert.DeserializeObject<DidReceiveGlobalSettingsEvent>(json);
+                    break;
                 case ElgatoEventType.KeyDown:
-                    return JsonConvert.DeserializeObject<KeyDownEvent>(json);
+                    elgatoEvent = JsonConvert.DeserializeObject<KeyDownEvent>(json);
+                    break;
                 case ElgatoEventType.KeyUp:
-                    return JsonConvert.DeserializeObject<KeyUpEvent>(json);
+                    elgatoEvent = JsonConvert.DeserializeObject<KeyUpEvent>(json);
+                    break;
                 case ElgatoEventType.WillAppear:
-                    return JsonConvert.DeserializeObject<WillAppearEvent>(json);
+                    elgatoEvent = JsonConvert.DeserializeObject<WillAppearEvent>(json);
+                    break;
                 case ElgatoEventType.WillDisappear:
-                    return JsonConvert.DeserializeObject<WillDisappearEvent>(json);
+                    elgatoEvent = JsonConvert.DeserializeObject<WillDisappearEvent>(json);
+                    break;
                 case ElgatoEventType.TitleParametersDidChange:
-                    return JsonConvert.DeserializeObject<TitleParametersDidChangeEvent>(json);
+                    elgatoEvent = JsonConvert.DeserializeObject<TitleParametersDidChangeEvent>(json);
+                    break;
                 case ElgatoEventType.DeviceDidConnect:
-                    return JsonConvert.DeserializeObject<DeviceDidConnectEvent>(json);
+                    elgatoEvent = JsonConvert.DeserializeObject<DeviceDidConnectEvent>(json);
+                    break;
                 case ElgatoEventType.DeviceDidDisconnect:
-                    return JsonConvert.DeserializeObject<DeviceDidDisconnectEvent>(json);
+                    elgatoEvent = JsonConvert.DeserializeObject<DeviceDidDisconnectEvent>(json);
+                    break;
                 case ElgatoEventType.ApplicationDidLaunch:
-                    return JsonConvert.DeserializeObject<ApplicationDidLaunchEvent>(json);
+                    elgatoEvent = JsonConvert.DeserializeObject<ApplicationDidLaunchEvent>(json);
+                    break;
                 case ElgatoEventType.ApplicationDidTerminate:
-                    return JsonConvert.DeserializeObject<ApplicationDidTerminateEvent>(json);
+                    elgatoEvent = JsonConvert.DeserializeObject<ApplicationDidTerminateEvent>(json);
+                    break;
                 case ElgatoEventType.SystemDidWakeUp:
-                    return JsonConvert.DeserializeObject<SystemDidWakeUpEvent>(json);
+                    elgatoEvent = JsonConvert.DeserializeObject<SystemDidWakeUpEvent>(json);
+                    break;
                 case ElgatoEventType.PropertyInspectorDidAppear:
-                    return JsonConvert.DeserializeObject<PropertyInspectorDidAppearEvent>(json);
+                    elgatoEvent = JsonConvert.DeserializeObject<PropertyInspectorDidAppearEvent>(json);
+                    break;
                 case ElgatoEventType.PropertyInspectorDidDisappear:
-                    return JsonConvert.DeserializeObject<PropertyInspectorDidDisappearEvent>(json);
+                    elgatoEvent = JsonConvert.DeserializeObject<PropertyInspectorDidDisappearEvent>(json);
+                    break;
                 case ElgatoEventType.SendToPlugin:
-                    return JsonConvert.DeserializeObject<SendToPluginEvent>(json);
+                    elgatoEvent = JsonConvert.DeserializeObject<SendToPluginEvent>(json);
+                    break;
             }
-            return null;
+            elgatoEvent.Raw = json;
+            elgatoEvent.RawJObject = jsonObject;
+            return elgatoEvent;
         }
     }
 }

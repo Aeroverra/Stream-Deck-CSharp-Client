@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,5 +16,11 @@ namespace tech.aerove.streamdeck.client.Events
         /// Received Event Type
         /// </summary>
         ElgatoEventType Event { get; set; }
+
+        /// <summary>
+        /// The raw event text received from the Stream Deck
+        /// </summary>
+        string Raw { get; set; }
+        JObject RawJObject { get; set; }
     }
 }

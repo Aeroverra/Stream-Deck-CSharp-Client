@@ -46,7 +46,7 @@ namespace tech.aerove.streamdeck.client.Pipeline.Middleware
             }
             else
             {
-                _logger.LogDebug("[{direction}] Event Type: {eventtype} Data: {incomingevent}", "Received", message.Event, JsonConvert.SerializeObject(message, Format));
+                _logger.LogDebug("[{direction}] Event Type: {eventtype} Data: {incomingevent}", "Received", message.Event, JsonConvert.SerializeObject(message.RawJObject, Format));
 
             }
             return NextDelegate.InvokeNextIncoming(message);
