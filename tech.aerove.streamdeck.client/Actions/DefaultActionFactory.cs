@@ -43,29 +43,32 @@ namespace tech.aerove.streamdeck.client.Actions
 
         public List<ActionBase> CreateActions(IElgatoEvent elgatoEvent)
         {
-            var instanceIds = GetInstanceIds(elgatoEvent);
-            List<ActionBase> actions = new List<ActionBase>();
-            var existingKeys = new List<string>();
-            foreach (var instanceId in instanceIds)
+            lock (Instances)
             {
-                var exists = Instances.Any(x => x.Key == instanceId);
-                if (!exists) { continue; }
-                var instance = Instances.Where(x => x.Key == instanceId).Select(x => x.Value).SingleOrDefault();
-                existingKeys.Add(instanceId);
-                actions.Add(instance);
-            }
-            instanceIds.RemoveAll(x => existingKeys.Contains(x));
-            foreach (var instanceId in instanceIds)
-            {
-                ActionBase action = GetInstance(instanceId);
-                if (action != null)
+                var instanceIds = GetInstanceIds(elgatoEvent);
+                List<ActionBase> actions = new List<ActionBase>();
+                var existingKeys = new List<string>();
+                foreach (var instanceId in instanceIds)
                 {
-                    actions.Add(action);
-                    Instances.Add(instanceId, action);
+                    var exists = Instances.Any(x => x.Key == instanceId);
+                    if (!exists) { continue; }
+                    var instance = Instances.Where(x => x.Key == instanceId).Select(x => x.Value).SingleOrDefault();
+                    existingKeys.Add(instanceId);
+                    actions.Add(instance);
                 }
+                instanceIds.RemoveAll(x => existingKeys.Contains(x));
+                foreach (var instanceId in instanceIds)
+                {
+                    ActionBase action = GetInstance(instanceId);
+                    if (action != null)
+                    {
+                        actions.Add(action);
+                        Instances.Add(instanceId, action);
+                    }
+                }
+                return actions;
             }
-
-            return actions;
+        
         }
 
         /// <summary>

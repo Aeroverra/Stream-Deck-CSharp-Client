@@ -57,7 +57,7 @@ namespace tech.aerove.streamdeck.client
             }
             catch (Exception e)
             {
-                _logger.LogWarning(e, "websocketservice error");
+                _logger.LogCritical(e, "websocketservice error");
             }
             await DisconnectAsync();
             _logger.LogInformation("{ClientName} Shutting Down...", "Aerove Stream Deck Client");
@@ -76,7 +76,7 @@ namespace tech.aerove.streamdeck.client
             await Socket.ConnectAsync(uri, stoppingToken);
             if (Socket.State != WebSocketState.Open)
             {
-                _logger.LogWarning("Could not connect to Elgato {uri}", uri);
+                _logger.LogCritical("Could not connect to Elgato {uri}", uri);
                 await DisconnectAsync();
                 return;
             }
@@ -145,7 +145,7 @@ namespace tech.aerove.streamdeck.client
             }
             catch (Exception e)
             {
-                _logger.LogWarning(e, "Listener died in exception.");
+                _logger.LogCritical(e, "Listener died in exception.");
             }
 
         }
@@ -179,7 +179,7 @@ namespace tech.aerove.streamdeck.client
             }
             catch (Exception e)
             {
-                _logger.LogWarning(e, "Could not send message to Elgato: {message}", json);
+                _logger.LogCritical(e, "Could not send message to Elgato: {message}", json);
             }
             finally
             {

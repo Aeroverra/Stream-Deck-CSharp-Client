@@ -133,15 +133,20 @@ namespace tech.aerove.streamdeck.client.Startup
             File.WriteAllText($"{elgatoPath}\\appsettings.json", "{\"DevLogParametersOnly\":true}");
             File.Copy($"{currentPath}\\manifest.json", $"{elgatoPath}\\manifest.json");
 
-            var propertyInspectorFiles = Directory.GetFiles($"{currentPath}\\PropertyInspector", "*", SearchOption.AllDirectories);
-            foreach (var file in propertyInspectorFiles)
+            var piDirectory = new DirectoryInfo($"{currentPath}\\PropertyInspector");
+            if (piDirectory.Exists)
             {
-                var fileName = Path.GetFileName(file);
-                var extraPath = Path.GetDirectoryName(file).Replace($"{currentPath}\\PropertyInspector", "");
-                var copyPath = $"{elgatoPath}\\PropertyInspector{extraPath}\\{fileName}";
-                Directory.CreateDirectory(Path.GetDirectoryName(copyPath));
-                File.Copy(file, copyPath, true);
+                var propertyInspectorFiles = Directory.GetFiles(piDirectory.FullName, "*", SearchOption.AllDirectories);
+                foreach (var file in propertyInspectorFiles)
+                {
+                    var fileName = Path.GetFileName(file);
+                    var extraPath = Path.GetDirectoryName(file).Replace($"{currentPath}\\PropertyInspector", "");
+                    var copyPath = $"{elgatoPath}\\PropertyInspector{extraPath}\\{fileName}";
+                    Directory.CreateDirectory(Path.GetDirectoryName(copyPath));
+                    File.Copy(file, copyPath, true);
+                }
             }
+          
 
             var process = Process.GetProcesses()
                 .Where(x => x.MatchesPath(elgatoPath))
@@ -157,7 +162,7 @@ namespace tech.aerove.streamdeck.client.Startup
             //waits for a max of 11250 ms first attempt
             var multiplier = 250;
             //takes longer to restart stream deck
-            if (secondAttempt) { multiplier = 750; }
+            if (secondAttempt) { multiplier = 1000; }
             for (int x = 0; x < 10; x++)
             {
                 if (!File.Exists($"{elgatoPath}\\args.txt"))

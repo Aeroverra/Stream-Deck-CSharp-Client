@@ -26,6 +26,7 @@ namespace tech.aerove.streamdeck.client
         /// <param name="args"></param>
         public static IServiceCollection AddAeroveStreamDeckClient(this IServiceCollection services, HostBuilderContext context)
         {
+            Console.Title = "Aerove Stream Deck Client by Aeroverra";
             var config = context.Configuration;
             string[] args = Environment.GetCommandLineArgs();
             VSDebugHandler.OutputArgs(config);
