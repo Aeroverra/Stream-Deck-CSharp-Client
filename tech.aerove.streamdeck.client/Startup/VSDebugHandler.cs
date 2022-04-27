@@ -51,6 +51,7 @@ namespace tech.aerove.streamdeck.client.Startup
                 return null;
             }
             var elgatoPluginFolder = config.GetValue<string>("ElgatoPluginPath");
+            elgatoPluginFolder = Environment.ExpandEnvironmentVariables(elgatoPluginFolder);
             var currentExecutablePath = Environment.ProcessPath;
             var currentExecutableFolder = Path.GetDirectoryName(currentExecutablePath);
             var executableName = Path.GetFileName(currentExecutablePath);
@@ -75,6 +76,7 @@ namespace tech.aerove.streamdeck.client.Startup
             return newArgs;
 
         }
+
        
         private static bool RestartStreamDeckAndMoveNewFiles(string elgatoPath, string currentPath)
         {
@@ -122,7 +124,7 @@ namespace tech.aerove.streamdeck.client.Startup
 
             return true;
         }
-        
+
         private static string[]? UpdateFiles(string elgatoPath, string currentPath, string executableName, bool secondAttempt = false)
         {
             Directory.CreateDirectory(elgatoPath);
@@ -146,7 +148,7 @@ namespace tech.aerove.streamdeck.client.Startup
                     File.Copy(file, copyPath, true);
                 }
             }
-          
+
 
             var process = Process.GetProcesses()
                 .Where(x => x.MatchesPath(elgatoPath))

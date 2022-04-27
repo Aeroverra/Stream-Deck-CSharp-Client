@@ -28,9 +28,11 @@ namespace tech.aerove.streamdeck.client
         {
             Console.Title = "Aerove Stream Deck Client by Aeroverra";
             var config = context.Configuration;
+            TemplateUpdater.UpdateTemplate(config);
             string[] args = Environment.GetCommandLineArgs();
             VSDebugHandler.OutputArgs(config);
             args = VSDebugHandler.DevDebug(config) ?? args;
+
 
             services.AddSingleton<StreamDeckInfo>(x => new StreamDeckInfo(x.GetRequiredService<ILogger<StreamDeckInfo>>(), args.ToList()));
             services.AddTransient<ManifestInfo>();
