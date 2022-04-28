@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace tech.aerove.streamdeck.client.Startup
+namespace Tech.Aerove.StreamDeck.Client.Startup
 {
     internal static class TemplateUpdater
     {
@@ -20,17 +20,17 @@ namespace tech.aerove.streamdeck.client.Startup
             try
             {
                 var listResponse = ExecuteDotnetCommand("dotnet new --list");
-                var templateInstalled = listResponse.Where(x => x.Contains("Stream Deck Plugin")).Any();
+                var templateInstalled = listResponse.Where(x => x.ToLower().Contains("stream deck plugin")).Any();
                 if (!templateInstalled)
                 {
-                    ExecuteDotnetCommand("dotnet new -i tech.aerove.streamdeck.template");
+                    ExecuteDotnetCommand("dotnet new -i Tech.Aerove.StreamDeck.Template");
                 }
                 var updateCheckResponse = ExecuteDotnetCommand("dotnet new --update-check");
-                var needsUpdate = updateCheckResponse.FirstOrDefault(x => x.Contains("dotnet new --install tech.aerove.streamdeck.template"));
+                var needsUpdate = updateCheckResponse.FirstOrDefault(x => x.ToLower().Contains("dotnet new --install tech.aerove.streamdeck.template"));
                 if (needsUpdate != null && needsUpdate.Contains("dotnet new --install"))
                 {
                     var updateResponse = ExecuteDotnetCommand(needsUpdate.Trim());
-                    var updateSuccess = updateResponse.Where(x => x.Contains("Success: tech.aerove.streamdeck.template")).Any();
+                    var updateSuccess = updateResponse.Where(x => x.ToLower().Contains("success: tech.aerove.streamdeck.template")).Any();
                     if (updateSuccess)
                     {
                         Console.WriteLine("Plugin Template Updated.");

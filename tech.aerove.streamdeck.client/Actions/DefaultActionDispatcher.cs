@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace tech.aerove.streamdeck.client.Actions
+namespace Tech.Aerove.StreamDeck.Client.Actions
 {
     //todo: add image helpers
     public class DefaultActionDispatcher : IActionDispatcher

@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using tech.aerove.streamdeck.client.Events;
-using tech.aerove.streamdeck.client.Pipeline.Middleware;
+using Tech.Aerove.StreamDeck.Client.Events;
+using Tech.Aerove.StreamDeck.Client.Pipeline.Middleware;
 
-namespace tech.aerove.streamdeck.client.Pipeline
+namespace Tech.Aerove.StreamDeck.Client.Pipeline
 {
     public class MiddlewareBuilder
     {

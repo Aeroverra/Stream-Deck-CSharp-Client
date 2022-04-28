@@ -7,10 +7,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using tech.aerove.streamdeck.client.Actions;
-using tech.aerove.streamdeck.client.Events;
+using Tech.Aerove.StreamDeck.Client.Actions;
+using Tech.Aerove.StreamDeck.Client.Events;
 
-namespace tech.aerove.streamdeck.client.Pipeline.Middleware
+namespace Tech.Aerove.StreamDeck.Client.Pipeline.Middleware
 {
     internal class EventLoggingMiddleware : MiddlewareBase
     {

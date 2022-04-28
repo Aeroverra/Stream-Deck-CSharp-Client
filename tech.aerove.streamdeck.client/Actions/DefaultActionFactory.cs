@@ -7,11 +7,11 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using tech.aerove.streamdeck.client.Cache;
-using tech.aerove.streamdeck.client.Events;
-using tech.aerove.streamdeck.client.Startup;
+using Tech.Aerove.StreamDeck.Client.Cache;
+using Tech.Aerove.StreamDeck.Client.Events;
+using Tech.Aerove.StreamDeck.Client.Startup;
 
-namespace tech.aerove.streamdeck.client.Actions
+namespace Tech.Aerove.StreamDeck.Client.Actions
 {
     internal class ActionInfo
     {

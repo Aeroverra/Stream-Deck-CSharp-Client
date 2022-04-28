@@ -1,6 +1,6 @@
-﻿using tech.aerove.streamdeck.client.Events;
+﻿using Tech.Aerove.StreamDeck.Client.Events;
 
-namespace tech.aerove.streamdeck.client.Pipeline
+namespace Tech.Aerove.StreamDeck.Client.Pipeline
 {
     public interface IPipeline
     {

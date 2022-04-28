@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using tech.aerove.streamdeck.client.Events.SharedModels;
+using Tech.Aerove.StreamDeck.Client.Events.SharedModels;
 
-namespace tech.aerove.streamdeck.client.Events
+namespace Tech.Aerove.StreamDeck.Client.Events
 {
     public class DidReceiveGlobalSettingsEvent : ElgatoEvent
     {

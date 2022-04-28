@@ -5,11 +5,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using tech.aerove.streamdeck.client.Events;
-using tech.aerove.streamdeck.client.SDAnalyzer.ManifestModels;
-using tech.aerove.streamdeck.client.Startup;
+using Tech.Aerove.StreamDeck.Client.Events;
+using Tech.Aerove.StreamDeck.Client.SDAnalyzer.ManifestModels;
+using Tech.Aerove.StreamDeck.Client.Startup;
 
-namespace tech.aerove.streamdeck.client.SDAnalyzer
+namespace Tech.Aerove.StreamDeck.Client.SDAnalyzer
 {
     internal class SDAnalyzerService
     {

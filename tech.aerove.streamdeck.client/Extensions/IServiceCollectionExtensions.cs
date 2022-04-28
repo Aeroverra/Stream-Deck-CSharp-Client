@@ -3,15 +3,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using tech.aerove.streamdeck.client.Actions;
-using tech.aerove.streamdeck.client.Cache;
-using tech.aerove.streamdeck.client.Events;
-using tech.aerove.streamdeck.client.Pipeline;
-using tech.aerove.streamdeck.client.Pipeline.Middleware;
-using tech.aerove.streamdeck.client.SDAnalyzer;
-using tech.aerove.streamdeck.client.Startup;
+using Tech.Aerove.StreamDeck.Client.Actions;
+using Tech.Aerove.StreamDeck.Client.Cache;
+using Tech.Aerove.StreamDeck.Client.Events;
+using Tech.Aerove.StreamDeck.Client.Pipeline;
+using Tech.Aerove.StreamDeck.Client.Pipeline.Middleware;
+using Tech.Aerove.StreamDeck.Client.SDAnalyzer;
+using Tech.Aerove.StreamDeck.Client.Startup;
 
-namespace tech.aerove.streamdeck.client
+namespace Tech.Aerove.StreamDeck.Client
 {
     public static class IServiceCollectionExtensions
     {

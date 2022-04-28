@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace tech.aerove.streamdeck.client.Events
+namespace Tech.Aerove.StreamDeck.Client.Events
 {
     public class SystemDidWakeUpEvent : ElgatoEvent
     {

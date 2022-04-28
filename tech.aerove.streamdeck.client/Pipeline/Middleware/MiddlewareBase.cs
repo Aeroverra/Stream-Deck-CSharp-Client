@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
-using tech.aerove.streamdeck.client.Events;
+using Tech.Aerove.StreamDeck.Client.Events;
 
-namespace tech.aerove.streamdeck.client.Pipeline.Middleware
+namespace Tech.Aerove.StreamDeck.Client.Pipeline.Middleware
 {
     public abstract class MiddlewareBase
     {

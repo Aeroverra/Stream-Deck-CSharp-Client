@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace tech.aerove.streamdeck.client.Actions
+namespace Tech.Aerove.StreamDeck.Client.Actions
 {
     /// <summary>
     /// All the information related to this actions instance

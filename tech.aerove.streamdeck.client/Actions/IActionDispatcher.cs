@@ -1,4 +1,4 @@
-﻿namespace tech.aerove.streamdeck.client.Actions
+﻿namespace Tech.Aerove.StreamDeck.Client.Actions
 {
 
     /// <summary>

@@ -11,12 +11,12 @@ using System.Linq;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading.Tasks;
-using tech.aerove.streamdeck.client.Actions;
-using tech.aerove.streamdeck.client.Events;
-using tech.aerove.streamdeck.client.Pipeline;
-using tech.aerove.streamdeck.client.Startup;
+using Tech.Aerove.StreamDeck.Client.Actions;
+using Tech.Aerove.StreamDeck.Client.Events;
+using Tech.Aerove.StreamDeck.Client.Pipeline;
+using Tech.Aerove.StreamDeck.Client.Startup;
 
-namespace tech.aerove.streamdeck.client
+namespace Tech.Aerove.StreamDeck.Client
 {
     public class WebSocketService : BackgroundService
     {

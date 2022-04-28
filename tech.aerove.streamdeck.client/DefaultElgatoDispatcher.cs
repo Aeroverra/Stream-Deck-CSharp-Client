@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using tech.aerove.streamdeck.client.Pipeline;
-using tech.aerove.streamdeck.client.Startup;
+using Tech.Aerove.StreamDeck.Client.Pipeline;
+using Tech.Aerove.StreamDeck.Client.Startup;
 
-namespace tech.aerove.streamdeck.client
+namespace Tech.Aerove.StreamDeck.Client
 {
     public class DefaultElgatoDispatcher : IElgatoDispatcher
     {

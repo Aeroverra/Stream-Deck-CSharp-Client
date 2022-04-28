@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace tech.aerove.streamdeck.client.Events
+namespace Tech.Aerove.StreamDeck.Client.Events
 {
     /// <summary>
     /// Covers all ElgatoEvents

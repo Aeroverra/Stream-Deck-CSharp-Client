@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace tech.aerove.streamdeck.client.Startup
+namespace Tech.Aerove.StreamDeck.Client.Startup
 {
     /// <summary>
     /// Magic behind the no restart easy debug by Aeroverra
@@ -77,23 +77,34 @@ namespace tech.aerove.streamdeck.client.Startup
 
         }
 
-       
+
         private static bool RestartStreamDeckAndMoveNewFiles(string elgatoPath, string currentPath)
         {
             Console.WriteLine("Attempting to fix devdebug by restarting stream deck and copying new files.");
+            var processes = Process.GetProcesses().SafeOnly();
 
-            var streamdeckProcess = Process.GetProcesses()
-               .Where(x => x.HasFileName("StreamDeck.exe"))
-               .FirstOrDefault();
+            var streamdeckProcess = processes
+                .Where(x => !x.HasExited)
+                .Where(x => x.MainModule.FileName.EndsWith("StreamDeck.exe"))
+                .ToList();
 
 
-            if (streamdeckProcess == null)
+            if (streamdeckProcess.Count() == 0)
             {
                 Console.WriteLine("Stream Deck is not running. Stream Deck must be running to use devdebug.");
                 return false;
             }
-            var streamdeckExecutable = streamdeckProcess.MainModule.FileName;
-            streamdeckProcess.Kill();
+            var sdExecutable = streamdeckProcess.First().MainModule.FileName;
+            streamdeckProcess.ForEach(x => x.Kill());
+
+            var currentProcess = Process.GetCurrentProcess();
+            var pluginInstances = processes
+                .Where(x => !x.HasExited)
+                .Where(x => x.ProcessName == currentProcess.ProcessName)
+                .Where(x => x.Id != currentProcess.Id)
+                .ToList();
+            pluginInstances.ForEach(x => x.Kill(true));
+
 
             var allElgatoFiles = Directory.GetFiles(elgatoPath, "*", SearchOption.AllDirectories);
             foreach (var file in allElgatoFiles)
@@ -120,7 +131,7 @@ namespace tech.aerove.streamdeck.client.Startup
             }
 
 
-            streamdeckProcess = Process.Start(streamdeckExecutable);
+            Process.Start(sdExecutable);
 
             return true;
         }
@@ -149,16 +160,15 @@ namespace tech.aerove.streamdeck.client.Startup
                 }
             }
 
+            var processes = Process.GetProcesses().SafeOnly();
+            var process = processes
+                .Where(x => !x.HasExited)
+                .Where(x => x.MainModule.FileName.StartsWith(elgatoPath.Replace("/", "\\")))
+                .Where(x => x.MainModule.FileName.EndsWith(executableName))
+                .ToList();
 
-            var process = Process.GetProcesses()
-                .Where(x => x.MatchesPath(elgatoPath))
-                .Where(x => x.HasFileName(executableName))
-                .SingleOrDefault();
+            process.ForEach(x => x.Kill());
 
-            if (process != null)
-            {
-                process.Kill();
-            }
 
             Console.WriteLine("Reading new args");
             //waits for a max of 11250 ms first attempt
@@ -179,38 +189,24 @@ namespace tech.aerove.streamdeck.client.Startup
             return null;
         }
 
-        private static bool MatchesPath(this Process process, string path)
+
+        private static List<Process> SafeOnly(this Process[] processes)
         {
-            try
+            List<Process> processList = new List<Process>();
+            foreach (var process in processes)
             {
-                var fileName = process.MainModule?.FileName;
-                if (fileName != null && fileName.StartsWith(path.Replace("/", "\\")))
+                try
                 {
-                    return true;
+                    var module = process.MainModule;
+                    processList.Add(process);
+                }
+                catch
+                {
+
                 }
             }
-            catch
-            {
-
-            }
-            return false;
+            return processList;
         }
 
-        private static bool HasFileName(this Process process, string executableName)
-        {
-            try
-            {
-                var fileName = process.MainModule?.FileName;
-                if (fileName != null && fileName.EndsWith(executableName))
-                {
-                    return true;
-                }
-            }
-            catch
-            {
-
-            }
-            return false;
-        }
     }
 }

@@ -8,11 +8,11 @@ using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using tech.aerove.streamdeck.client.Actions;
-using tech.aerove.streamdeck.client.Cache;
-using tech.aerove.streamdeck.client.Events;
+using Tech.Aerove.StreamDeck.Client.Actions;
+using Tech.Aerove.StreamDeck.Client.Cache;
+using Tech.Aerove.StreamDeck.Client.Events;
 
-namespace tech.aerove.streamdeck.client.Pipeline
+namespace Tech.Aerove.StreamDeck.Client.Pipeline
 {
     internal class DefaultPipeline : IPipeline
     {

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace tech.aerove.streamdeck.client
+namespace Tech.Aerove.StreamDeck.Client
 {
     public class ManifestInfo
     {
