@@ -51,8 +51,8 @@ namespace Tech.Aerove.StreamDeck.Client
 
             if (config.GetValue<bool>("SDAnalyzerEnabled", true))
             {
-                services.AddSingleton<SDAnalyzerService>();
-                services.AddMiddleware<SDAnalyzerMiddleware>();
+                //services.AddSingleton<SDAnalyzerService>();
+                //services.AddMiddleware<SDAnalyzerMiddleware>();
             }
 
 
