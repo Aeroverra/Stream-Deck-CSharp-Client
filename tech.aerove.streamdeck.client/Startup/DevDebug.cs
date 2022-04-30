@@ -13,7 +13,7 @@ namespace Tech.Aerove.StreamDeck.Client.Startup
     /// <summary>
     /// Magic behind the no restart easy debug by Aeroverra
     /// </summary>
-    internal static class VSDebugHandler
+    internal static class DevDebug
     {
         /// <summary>
         /// Checks if DevLogParametersOnly is set to true and if so
@@ -38,7 +38,7 @@ namespace Tech.Aerove.StreamDeck.Client.Startup
         /// Checks if DevDebug is true and if so attempts to takeover elgato plugin connection.
         /// </summary>
         /// <returns>New args from takeover</returns>
-        public static string[]? DevDebug(IConfiguration config)
+        public static string[]? TakeOver(IConfiguration config)
         {
             var devDebug = config.GetValue<bool>("DevDebug");
             if (!devDebug)
@@ -49,6 +49,7 @@ namespace Tech.Aerove.StreamDeck.Client.Startup
             if (config.GetValue<string>("ElgatoPluginPath").Contains("~/Library"))
             {
                 //Mac
+                Console.WriteLine("DevDebug is untested on mac. Let me know if it works or doesn't work. https://discord.aerove.tech");
                 var path = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
                 path = Path.Combine(path, "Library/Application Support/com.elgato.StreamDeck/Plugins/");
                 elgatoPluginDir = new DirectoryInfo(path);
@@ -87,11 +88,11 @@ namespace Tech.Aerove.StreamDeck.Client.Startup
                 return args3;
             }
             Console.WriteLine("DevDebug failed. Follow these steps then try again." +
-                "\t1.) Kill the Stream Deck application." +
-                "\t2.) Delete the plugin folder for this plugin within the Elgato plugins folder." +
-                "\t3.) Start the Stream Deck application." +
-                "\t4.) Run your plugin in debug mode." +
-                "\t5.) If its still not working please let me know. https://discord.aerove.tech");
+                "\r\n\t1.) Kill the Stream Deck application." +
+                "\r\n\t2.) Delete the plugin folder for this plugin within the Elgato plugins folder." +
+                "\r\n\t3.) Start the Stream Deck application." +
+                "\r\n\t4.) Run your plugin in debug mode." +
+                "\r\n\t5.) If its still not working please let me know. https://discord.aerove.tech");
             Environment.Exit(0);
             return null;
         }

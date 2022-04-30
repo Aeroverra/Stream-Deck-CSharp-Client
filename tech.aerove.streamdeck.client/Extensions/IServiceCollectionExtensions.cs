@@ -30,8 +30,8 @@ namespace Tech.Aerove.StreamDeck.Client
             var config = context.Configuration;
             TemplateUpdater.UpdateTemplate(config);
             string[] args = Environment.GetCommandLineArgs();
-            VSDebugHandler.OutputArgs(config);
-            args = VSDebugHandler.DevDebug(config) ?? args;
+            DevDebug.OutputArgs(config);
+            args = DevDebug.TakeOver(config) ?? args;
 
 
             services.AddSingleton<StreamDeckInfo>(x => new StreamDeckInfo(x.GetRequiredService<ILogger<StreamDeckInfo>>(), args.ToList()));

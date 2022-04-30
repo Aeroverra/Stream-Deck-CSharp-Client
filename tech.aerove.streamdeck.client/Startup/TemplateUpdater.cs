@@ -12,7 +12,7 @@ namespace Tech.Aerove.StreamDeck.Client.Startup
     {
         public static void UpdateTemplate(IConfiguration config)
         {
-            var devDebug = config.GetValue<bool>("DevDebug");
+            var devDebug = config.GetValue<bool>("DevDebug", false);
             if (!devDebug)
             {
                 return;

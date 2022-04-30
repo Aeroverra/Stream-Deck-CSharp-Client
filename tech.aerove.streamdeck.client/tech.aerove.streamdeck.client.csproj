@@ -8,10 +8,10 @@
     <Company>Aerove</Company>
     <Product>Aerove Stream Deck Client</Product>
     <Title>Aerove Stream Deck Client</Title>
-    <Description>The best C# client library for making Elgato Stream Deck plugins taking advantage of the .NET service environment and the only major client that supports both Windows and Mac OSX natively.</Description>
-    <VersionPrefix>0.7.3</VersionPrefix>
+    <Description>An easy to use Client library for making Elgato Stream Deck plugins taking advantage of the .NET service environment. Supports both Windows and Mac OSX natively.</Description>
+    <VersionPrefix>0.7.11</VersionPrefix>
     <VersionSuffix>beta</VersionSuffix>
-    <PackageReleaseNotes>Rewrote Dev Debug</PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
     <Copyright>Copyright (c) 2022 Aerove AKA Aeroverra AKA Nicholas Halka</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
     <PackageProjectUrl>https://aerove.tech</PackageProjectUrl>
