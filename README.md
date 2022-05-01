@@ -1,5 +1,6 @@
 # Aerove C# Stream Deck Client
 [![Build](https://github.com/Aeroverra/Stream-Deck-C-Client/actions/workflows/dotnet.yml/badge.svg?branch=main)](https://github.com/Aeroverra/Stream-Deck-C-Client/actions/workflows/dotnet.yml)[![NuGet](https://img.shields.io/nuget/v/Tech.Aerove.StreamDeck.Client.svg?style=flat)](https://www.nuget.org/packages/Tech.Aerove.StreamDeck.Client)[![NuGet](https://img.shields.io/nuget/v/Tech.Aerove.StreamDeck.Template.svg?style=flat)](https://www.nuget.org/packages/Tech.Aerove.StreamDeck.Template)
+
 An easy to use C# Client library for making Elgato Stream Deck plugins taking advantage of the .NET Core service environment with cross platform plugin support for both Windows and Mac OSX.
 
 
@@ -33,6 +34,7 @@ You will now see the following projects available in Visual Studio
 After selecting one of these templates you will need to fill in information about your plugin like your website, name and [UUID](https://developer.elgato.com/documentation/stream-deck/sdk/manifest/).
 
 Once your finished you can run  the plugin and the "DevDebug" feature will automatically install and takeover your plugin giving you access to full debug mode.
+
 ![enter image description here](https://i.imgur.com/V27HDhy.png)
 
 Thats it! You can read over the comments and go from there.
