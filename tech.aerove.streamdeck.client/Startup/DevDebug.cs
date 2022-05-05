@@ -71,6 +71,7 @@ namespace Tech.Aerove.StreamDeck.Client.Startup
             Console.WriteLine("DevDebug takeover started.");
             if (OutputArgsIsSetup(elgatoPluginDir) && OutputArgsExist(elgatoPluginDir) && ReadArgs(elgatoPluginDir, out string[] args))
             {
+                UpdateFiles(elgatoPluginDir, streamDeckExecutable);
                 Console.WriteLine("DevDebug takeover success!");
                 return args;
             }
@@ -96,7 +97,7 @@ namespace Tech.Aerove.StreamDeck.Client.Startup
             Environment.Exit(0);
             return null;
         }
-      
+
         private static bool UpdateFiles(DirectoryInfo elgatoPluginDir, FileInfo streamDeckExecutable, bool forceKill = false)
         {
             if (forceKill)
@@ -150,7 +151,7 @@ namespace Tech.Aerove.StreamDeck.Client.Startup
             args = null;
             return false;
         }
-     
+
         private static bool OutputArgsIsSetup(DirectoryInfo elgatoPluginDir)
         {
             if (!elgatoPluginDir.Exists) { return false; }

@@ -87,7 +87,7 @@ namespace Tech.Aerove.StreamDeck.Client
             Task.Run(() => SetGlobalSettingsAsync(settings)).Wait();
         }
 
-        public Task SetGlobalSettingsAsync(object settings)
+        public async Task SetGlobalSettingsAsync(object settings)
         {
             var message = new
             {
@@ -95,7 +95,8 @@ namespace Tech.Aerove.StreamDeck.Client
                 Context = _streamDeckInfo.PluginUUID,
                 Payload = settings
             };
-            return _pipeline.HandleOutgoing(message);
+            await _pipeline.HandleOutgoing(message);
+            await GetGlobalSettingsAsync();
         }
 
         public void GetGlobalSettings()
