@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Tech.Aerove.StreamDeck.Client.Extensions;
 
 namespace Tech.Aerove.StreamDeck.Client.Startup
 {
