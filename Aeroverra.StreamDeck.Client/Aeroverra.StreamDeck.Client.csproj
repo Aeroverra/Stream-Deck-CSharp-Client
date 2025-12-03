@@ -1,0 +1,54 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Authors>Aeroverra AKA Nicholas Halka</Authors>
+		<Company>Aerove</Company>
+		<Product>Aerove Stream Deck Client</Product>
+		<Title>Aerove Stream Deck Client</Title>
+		<Description>An easy to use Client library for making Elgato Stream Deck plugins taking advantage of the .NET service environment. Supports both Windows and Mac OSX natively.</Description>
+		<VersionPrefix>0.7.13</VersionPrefix>
+		<VersionSuffix>beta</VersionSuffix>
+		<PackageReleaseNotes>
+		</PackageReleaseNotes>
+		<Copyright>Copyright (c) 2022 Aerove AKA Aeroverra AKA Nicholas Halka</Copyright>
+		<NeutralLanguage>en-US</NeutralLanguage>
+		<PackageProjectUrl>https://aerove.tech</PackageProjectUrl>
+		<PackageTags>streamdeck;elgato</PackageTags>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/Aeroverra/Stream-Deck-C-Client</RepositoryUrl>
+		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<RepositoryType>git</RepositoryType>
+		<PackageIcon>aerove.png</PackageIcon>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Include="../LICENSE.md" Pack="true" PackagePath="" />
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Remove="Temp\**" />
+		<EmbeddedResource Remove="Temp\**" />
+		<None Remove="Temp\**" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="..\images\aerove.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Update="LICENSE.md">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+</Project>
