@@ -39,6 +39,7 @@ namespace Aeroverra.StreamDeck.Client.Startup
             {
                 return null;
             }
+            ElgatoDevTools.SetDeveloperMode(true);
             var elgatoPluginDir = new DirectoryInfo(Environment.ExpandEnvironmentVariables(config.GetValue<string>("ElgatoPluginPath")));
             if (config.GetValue<string>("ElgatoPluginPath").Contains("~/Library"))
             {
@@ -65,7 +66,9 @@ namespace Aeroverra.StreamDeck.Client.Startup
             Console.WriteLine("DevDebug takeover started.");
             if (OutputArgsIsSetup(elgatoPluginDir) && OutputArgsExist(elgatoPluginDir) && ReadArgs(elgatoPluginDir, out string[] args))
             {
-                UpdateFiles(elgatoPluginDir, streamDeckExecutable);
+                // Causes DevDebug to be unreliable
+                // Introduced 05/05/2022
+                // UpdateFiles(elgatoPluginDir, streamDeckExecutable);
                 Console.WriteLine("DevDebug takeover success!");
                 return args;
             }
