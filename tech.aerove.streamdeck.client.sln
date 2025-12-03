@@ -1,9 +1,9 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32317.152
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tech.aerove.streamdeck.client", "tech.aerove.streamdeck.client\tech.aerove.streamdeck.client.csproj", "{5C5329EC-2E3A-4F39-9D77-CE02814A73DF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tech.aerove.streamdeck.client", "tech.aerove.streamdeck.client\tech.aerove.streamdeck.client.csproj", "{5C5329EC-2E3A-4F39-9D77-CE02814A73DF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
