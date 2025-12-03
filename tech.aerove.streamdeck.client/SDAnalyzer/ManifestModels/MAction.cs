@@ -1,10 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Tech.Aerove.StreamDeck.Client.SDAnalyzer.ManifestModels
 {
@@ -57,7 +52,7 @@ namespace Tech.Aerove.StreamDeck.Client.SDAnalyzer.ManifestModels
             //covers routine and routine2 aka multiactions
             if (Uuid.Contains("com.elgato.streamdeck.multiactions.routine"))
             {
-               IsMultiAction = true;
+                IsMultiAction = true;
                 var actions = (Settings["Routine"] as JArray).ToObject<List<MAction>>();
                 var actionAlts = (Settings["RoutineAlt"] as JArray).ToObject<List<MAction>>();
                 actions.ForEach(x => x.IsRoutine = true);
@@ -74,9 +69,9 @@ namespace Tech.Aerove.StreamDeck.Client.SDAnalyzer.ManifestModels
             var index = 0;
             foreach (var state in States)
             {
-                state.Setup(this,index++, pluginManifests);
+                state.Setup(this, index++, pluginManifests);
             }
-            foreach(var action in Actions)
+            foreach (var action in Actions)
             {
                 action.Setup(this, pluginManifests);
             }

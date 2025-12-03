@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Tech.Aerove.StreamDeck.Client.SDAnalyzer.ManifestModels
+﻿namespace Tech.Aerove.StreamDeck.Client.SDAnalyzer.ManifestModels
 {
     internal class MState
     {
@@ -34,10 +28,10 @@ namespace Tech.Aerove.StreamDeck.Client.SDAnalyzer.ManifestModels
             if (pluginManifest == null) { return false; }
 
             var pluginAction = pluginManifest.Actions.FirstOrDefault(x => x.Uuid == Action.Uuid);
-            if(pluginAction.States == null || pluginAction.States.Count< Index + 1) { return false; }
+            if (pluginAction.States == null || pluginAction.States.Count< Index + 1) { return false; }
 
             var pluginStateFile = pluginAction.States[Index].ImageFile;
-            if(pluginStateFile == null) { return false; }
+            if (pluginStateFile == null) { return false; }
             ImageFile = pluginStateFile;
             ImageSource = ImageSource.PluginManifest;
             return true;

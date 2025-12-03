@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-
-namespace Tech.Aerove.StreamDeck.Client
+﻿namespace Tech.Aerove.StreamDeck.Client
 {
     public interface IElgatoDispatcher
     {

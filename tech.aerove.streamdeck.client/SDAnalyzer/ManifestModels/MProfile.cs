@@ -1,10 +1,4 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json.Linq;
 
 namespace Tech.Aerove.StreamDeck.Client.SDAnalyzer.ManifestModels
 {
@@ -78,8 +72,8 @@ namespace Tech.Aerove.StreamDeck.Client.SDAnalyzer.ManifestModels
             {
                 IsFolder = true;
             }
-            
-            foreach(var action in Actions)
+
+            foreach (var action in Actions)
             {
                 action.Setup(this, pluginManifests);
             }

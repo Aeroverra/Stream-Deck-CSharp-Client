@@ -1,10 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tech.Aerove.StreamDeck.Client.Events;
 using Tech.Aerove.StreamDeck.Client.SDAnalyzer.ManifestModels;
 using Tech.Aerove.StreamDeck.Client.Startup;

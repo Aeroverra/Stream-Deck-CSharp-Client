@@ -1,9 +1,4 @@
 ﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tech.Aerove.StreamDeck.Client.Actions;
 using Tech.Aerove.StreamDeck.Client.Events;
 
@@ -57,7 +52,7 @@ namespace Tech.Aerove.StreamDeck.Client.Cache
                 }
             }
         }
-        
+
         public IActionContext BuildContext(string instanceId)
         {
             var instance = Devices
@@ -75,13 +70,13 @@ namespace Tech.Aerove.StreamDeck.Client.Cache
             instance.Settings = e.Payload.Settings;
             instance.IsInMultiAction = e.Payload.IsInMultiAction;
         }
-      
+
         private void DidReceiveGlobalSettings(DidReceiveGlobalSettingsEvent e)
         {
             GlobalSettings = e.Payload.Settings;
 
         }
-      
+
         private void KeyDown(KeyDownEvent e)
         {
             var device = Devices.SingleOrDefault(x => x.Id == e.Device);
@@ -92,7 +87,7 @@ namespace Tech.Aerove.StreamDeck.Client.Cache
             instance.IsInMultiAction = e.Payload.IsInMultiAction;
             instance.State = e.Payload.State;
         }
-       
+
         private void KeyUp(KeyUpEvent e)
         {
             var device = Devices.SingleOrDefault(x => x.Id == e.Device);
@@ -103,12 +98,12 @@ namespace Tech.Aerove.StreamDeck.Client.Cache
             instance.IsInMultiAction = e.Payload.IsInMultiAction;
             instance.State = e.Payload.State;
         }
-       
+
         private void WillAppear(WillAppearEvent e)
         {
             var device = Devices.SingleOrDefault(x => x.Id == e.Device);
             //This needs to be here to handle when devices are not connected
-            if(device == null)
+            if (device == null)
             {
                 device = new Device
                 {
@@ -147,12 +142,12 @@ namespace Tech.Aerove.StreamDeck.Client.Cache
             instance.IsShown = true;
 
         }
-       
+
         private void WillDisappear(WillDisappearEvent e)
         {
             var device = Devices.SingleOrDefault(x => x.Id == e.Device);
             var instance = device.ActionInstances.SingleOrDefault(x => x.Id == e.Context);
-          
+
             //sometimes willdisappear is called before willappear when swapping pages
             if (instance == null)
             {
@@ -178,7 +173,7 @@ namespace Tech.Aerove.StreamDeck.Client.Cache
             instance.IsInMultiAction = e.Payload.IsInMultiAction;
             instance.IsShown = false;
         }
-      
+
         private void TitleParametersDidChange(TitleParametersDidChangeEvent e)
         {
             var device = Devices.SingleOrDefault(x => x.Id == e.Device);
@@ -197,7 +192,7 @@ namespace Tech.Aerove.StreamDeck.Client.Cache
             instance.TitleColor = e.payload.Titleparameters.titleColor;
 
         }
-      
+
         private void DeviceDidConnect(DeviceDidConnectEvent e)
         {
             var device = Devices.SingleOrDefault(x => x.Id == e.Device);
@@ -213,13 +208,13 @@ namespace Tech.Aerove.StreamDeck.Client.Cache
             device.Type = e.DeviceInfo.Type;
             device.IsConnected = true;
         }
-    
+
         private void DeviceDidDisconnect(DeviceDidDisconnectEvent e)
         {
             var device = Devices.SingleOrDefault(x => x.Id == e.Device);
             device.IsConnected = false;
         }
-      
+
         private void ApplicationDidLaunch(ApplicationDidLaunchEvent e)
         {
             var application = MonitoredApplications.SingleOrDefault(x => x.Name == e.Payload.Application);
@@ -234,7 +229,7 @@ namespace Tech.Aerove.StreamDeck.Client.Cache
             }
             application.IsRunning = true;
         }
-   
+
         private void ApplicationDidTerminate(ApplicationDidTerminateEvent e)
         {
             var application = MonitoredApplications.SingleOrDefault(x => x.Name == e.Payload.Application);

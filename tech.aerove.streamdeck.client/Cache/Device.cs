@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Tech.Aerove.StreamDeck.Client.Cache
+﻿namespace Tech.Aerove.StreamDeck.Client.Cache
 {
     public class Device
     {
@@ -13,7 +7,7 @@ namespace Tech.Aerove.StreamDeck.Client.Cache
         public int Columns { get; set; }
         public int Rows { get; set; }
         public int Type { get; set; }
-        public bool IsConnected { get; set; }   
+        public bool IsConnected { get; set; }
 
         public List<ActionInstance> ActionInstances { get; set; } = new List<ActionInstance>();
     }

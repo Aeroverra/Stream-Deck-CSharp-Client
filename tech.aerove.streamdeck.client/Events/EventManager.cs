@@ -1,9 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Tech.Aerove.StreamDeck.Client.Events
 {
@@ -38,7 +33,7 @@ namespace Tech.Aerove.StreamDeck.Client.Events
 
         internal void HandleIncoming(IElgatoEvent? elgatoEvent)
         {
-        
+
             if (elgatoEvent == null) { return; }
 
             try

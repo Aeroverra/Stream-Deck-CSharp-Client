@@ -2,12 +2,6 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
-using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tech.Aerove.StreamDeck.Client.Actions;
 using Tech.Aerove.StreamDeck.Client.Cache;
 using Tech.Aerove.StreamDeck.Client.Events;

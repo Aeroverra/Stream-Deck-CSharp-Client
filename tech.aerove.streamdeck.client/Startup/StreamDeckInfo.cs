@@ -1,11 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Tech.Aerove.StreamDeck.Client.Startup
 {
@@ -30,7 +24,7 @@ namespace Tech.Aerove.StreamDeck.Client.Startup
 
         public StreamDeckInfo(ILogger<StreamDeckInfo> logger, List<string> startupArgs)
         {
-        
+
             logger?.LogTrace("Startup Args Received....");
             foreach (var arg in startupArgs)
             {

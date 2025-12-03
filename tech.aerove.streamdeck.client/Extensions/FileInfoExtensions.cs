@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Tech.Aerove.StreamDeck.Client
+﻿namespace Tech.Aerove.StreamDeck.Client
 {
     public static class FileInfoExtensions
     {
@@ -28,7 +22,7 @@ namespace Tech.Aerove.StreamDeck.Client
             {
                 return null;
             }
-       
+
         }
     }
 }

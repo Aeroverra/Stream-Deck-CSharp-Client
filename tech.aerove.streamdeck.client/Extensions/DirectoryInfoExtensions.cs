@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Tech.Aerove.StreamDeck.Client.Extensions
+﻿namespace Tech.Aerove.StreamDeck.Client.Extensions
 {
     internal static class DirectoryInfoExtensions
     {
@@ -13,7 +7,7 @@ namespace Tech.Aerove.StreamDeck.Client.Extensions
             Directory.CreateDirectory(destination.FullName);
             var allSuccess = true;
             var files = source.GetFiles();
-            foreach(var file in files)
+            foreach (var file in files)
             {
                 try
                 {
@@ -26,7 +20,7 @@ namespace Tech.Aerove.StreamDeck.Client.Extensions
                 }
             }
             var directories = source.GetDirectories();
-            foreach(var directory in directories)
+            foreach (var directory in directories)
             {
                 var destinationDirectoryPath = Path.Combine(destination.FullName, directory.Name);
                 var destinationDirectory = new DirectoryInfo(destinationDirectoryPath);

@@ -1,15 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Tech.Aerove.StreamDeck.Client.Cache;
 using Tech.Aerove.StreamDeck.Client.Events;
-using Tech.Aerove.StreamDeck.Client.Startup;
 
 namespace Tech.Aerove.StreamDeck.Client.Actions
 {

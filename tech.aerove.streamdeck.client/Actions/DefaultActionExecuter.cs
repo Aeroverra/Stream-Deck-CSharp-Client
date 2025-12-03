@@ -1,10 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tech.Aerove.StreamDeck.Client.Events;
 
 namespace Tech.Aerove.StreamDeck.Client.Actions
@@ -22,7 +16,7 @@ namespace Tech.Aerove.StreamDeck.Client.Actions
 
             foreach (ActionBase action in actions)
             {
-                _= Task.Run(()=>ExecuteAsync(elgatoEvent, action));
+                _= Task.Run(() => ExecuteAsync(elgatoEvent, action));
             }
             await Task.Delay(0);
         }

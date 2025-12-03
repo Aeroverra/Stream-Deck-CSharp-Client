@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Tech.Aerove.StreamDeck.Client.Actions;
@@ -8,7 +7,6 @@ using Tech.Aerove.StreamDeck.Client.Cache;
 using Tech.Aerove.StreamDeck.Client.Events;
 using Tech.Aerove.StreamDeck.Client.Pipeline;
 using Tech.Aerove.StreamDeck.Client.Pipeline.Middleware;
-using Tech.Aerove.StreamDeck.Client.SDAnalyzer;
 using Tech.Aerove.StreamDeck.Client.Startup;
 
 namespace Tech.Aerove.StreamDeck.Client

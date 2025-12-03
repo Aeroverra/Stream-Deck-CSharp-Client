@@ -1,10 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Tech.Aerove.StreamDeck.Client.Events
 {
@@ -12,7 +7,7 @@ namespace Tech.Aerove.StreamDeck.Client.Events
     {
         public abstract ElgatoEventType Event { get; set; }
 
-        public virtual string Raw { get { return _Raw; } set { if (_Raw == "") { _Raw = value; } } } 
+        public virtual string Raw { get { return _Raw; } set { if (_Raw == "") { _Raw = value; } } }
         private string _Raw { get; set; } = "";
 
         public virtual JObject RawJObject { get { return _RawJObject.DeepClone() as JObject; } set { if (_RawJObject == null) { _RawJObject = value; } } }

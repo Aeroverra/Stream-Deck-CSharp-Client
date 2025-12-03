@@ -4,15 +4,9 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
-using System;
-using System.Collections.Generic;
 using System.Dynamic;
-using System.Linq;
 using System.Net.WebSockets;
 using System.Text;
-using System.Threading.Tasks;
-using Tech.Aerove.StreamDeck.Client.Actions;
-using Tech.Aerove.StreamDeck.Client.Events;
 using Tech.Aerove.StreamDeck.Client.Pipeline;
 using Tech.Aerove.StreamDeck.Client.Startup;
 
@@ -153,7 +147,7 @@ namespace Tech.Aerove.StreamDeck.Client
         public async Task SendAsync(object message)
         {
 
-            if(message is JObject)
+            if (message is JObject)
             {
                 //Convert casing because the default  converter does not handle jobjects properly
                 //causing the streamdeck to ignore events
