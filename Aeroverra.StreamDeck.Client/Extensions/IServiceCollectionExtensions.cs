@@ -25,17 +25,34 @@ namespace Aeroverra.StreamDeck.Client
         public static IServiceCollection AddAeroveStreamDeckClient(this IServiceCollection services, HostBuilderContext context)
         {
             Console.Title = "Aerove Stream Deck Client by Aeroverra";
-            var config = context.Configuration;
-            TemplateUpdater.UpdateTemplate(config);
             string[] args = Environment.GetCommandLineArgs();
-            DevDebug.OutputArgs(config);
-            args = DevDebug.TakeOver(config) ?? args;
+            var config = context.Configuration;
+            var devDebug = config.GetValue<bool>("DevDebug");
+            var logParametersOnly = config.GetValue<bool>("DevLogParametersOnly");
+
+            TemplateUpdater.UpdateTemplate(config);
+
+            if (logParametersOnly == true)
+            {
+                DevDebug.OutputArgs(config);
+            }
+            else if (devDebug == true)
+            {
+                args = DevDebug.TakeOver(config);
+            }
 
 
+  
+      
+
+
+
+            services.AddHostedService<StreamDeckCoreWorker>();
+            services.AddSingleton<ElgatoWebSocket>();
             services.AddSingleton<StreamDeckInfo>(x => new StreamDeckInfo(x.GetRequiredService<ILogger<StreamDeckInfo>>(), args.ToList()));
             services.AddTransient<ManifestInfo>();
-            services.AddSingleton<WebSocketService>();
-            services.AddHostedService<WebSocketService>(provider => provider.GetService<WebSocketService>());
+
+
 
             services.AddSingleton<IPipeline, DefaultPipeline>();
             services.AddSingleton<MessageParser>();

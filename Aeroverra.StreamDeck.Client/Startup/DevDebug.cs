@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace Aeroverra.StreamDeck.Client.Startup
@@ -30,15 +31,9 @@ namespace Aeroverra.StreamDeck.Client.Startup
         /// Checks if DevDebug is true and if so attempts to takeover elgato plugin connection.
         /// </summary>
         /// <returns>New args from takeover</returns>
-        public static string[]? TakeOver(IConfiguration config)
+        public static string[] TakeOver(IConfiguration config)
         {
             Console.WriteLine("DevDebug takeover started.");
-
-            var devDebug = config.GetValue<bool>("DevDebug");
-            var logParametersOnly = config.GetValue<bool>("DevLogParametersOnly");
-
-            if (devDebug == false || logParametersOnly == true)
-                return null;
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
@@ -57,15 +52,19 @@ namespace Aeroverra.StreamDeck.Client.Startup
             var installed = ElgatoDevTools.IsPluginInstalled(pluginUUID);
             if (installed == true)
             {
+                Console.WriteLine("Stopping Plugin");
                 ElgatoDevTools.StopPlugin(pluginUUID);
+                WaitForPluginStop(pluginUUID);
             }
 
             var elgatoPluginsPath = ElgatoDevTools.GetPluginsPath();
             var pluginPath = Path.Combine(elgatoPluginsPath, $"{pluginUUID}.sdPlugin");
             var pluginDirectory = new DirectoryInfo(pluginPath);
 
+            Console.WriteLine("Updating Files");
             UpdateFiles(pluginDirectory);
 
+            Console.WriteLine("Starting Plugin");
             ElgatoDevTools.RestartPlugin(pluginUUID);
 
             if (ReadArgs(pluginDirectory, out string[]? args, true))
@@ -86,6 +85,51 @@ namespace Aeroverra.StreamDeck.Client.Startup
             return null;
         }
 
+        private static void WaitForPluginStop(string pluginUUID)
+        {
+            var currentExecutable = new FileInfo(Environment.ProcessPath!);
+            var pid = Environment.ProcessId;
+
+            var pluginProcesses = Process
+                .GetProcesses()
+                .SafeOnly()
+                .Where(x => x.HasExited == false)
+                .Where(x => x.Id != pid)
+                .Where(x => x.MainModule!.FileName.EndsWith(currentExecutable.Name))
+                .ToList();
+
+            var pluginProcessIds = pluginProcesses
+                .Select(x => x.Id)
+                .ToList();
+
+            if (pluginProcesses.Any() == false)
+            {
+                Console.WriteLine("No Running Plugin Found");
+                return;
+            }
+
+            for (int x = 0; x < 100; x++)
+            {
+                var processesLeft = Process
+                    .GetProcesses()
+                    .SafeOnly()
+                    .Where(x => x.HasExited == false)
+                    .Where(x => pluginProcessIds.Contains(x.Id))
+                    .ToList();
+
+                if (processesLeft.Count < pluginProcesses.Count)
+                {
+                    Console.WriteLine("Plugin Stopped");
+                    break;
+                }
+                else if (x == 99)
+                {
+                    Console.WriteLine("Failed To Stop Plugin");
+                    //pluginProcesses.ForEach(x => x.Kill());
+                }
+                Thread.Sleep(100);
+            }
+        }
         private static void UpdateFiles(DirectoryInfo pluginDirectory)
         {
             var processPath = Environment.ProcessPath;
@@ -128,7 +172,7 @@ namespace Aeroverra.StreamDeck.Client.Startup
                 File.Delete(argsPath);
                 if (args.Length < 4)
                 {
-                    Console.WriteLine("DevDebug failed takeover.");
+                    Console.WriteLine("DevDebug failed takeover. Unexpected params "+ string.Join(", ", args));
                     return false;
                 }
                 return true;
