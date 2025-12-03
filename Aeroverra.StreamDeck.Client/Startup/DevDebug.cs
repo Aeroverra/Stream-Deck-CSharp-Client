@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json.Linq;
-using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace Aeroverra.StreamDeck.Client.Startup
 {
@@ -27,97 +26,87 @@ namespace Aeroverra.StreamDeck.Client.Startup
             File.WriteAllText("args.txt", string.Join(Environment.NewLine, args));
         }
 
-
         /// <summary>
         /// Checks if DevDebug is true and if so attempts to takeover elgato plugin connection.
         /// </summary>
         /// <returns>New args from takeover</returns>
         public static string[]? TakeOver(IConfiguration config)
         {
+            Console.WriteLine("DevDebug takeover started.");
+
             var devDebug = config.GetValue<bool>("DevDebug");
-            if (!devDebug)
-            {
-                return null;
-            }
-            ElgatoDevTools.SetDeveloperMode(true);
-            var elgatoPluginDir = new DirectoryInfo(Environment.ExpandEnvironmentVariables(config.GetValue<string>("ElgatoPluginPath")));
-            if (config.GetValue<string>("ElgatoPluginPath").Contains("~/Library"))
-            {
-                //Mac
-                Console.WriteLine("DevDebug is untested on mac. Let me know if it works or doesn't work. https://discord.aerove.tech");
-                var path = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                path = Path.Combine(path, "Library/Application Support/com.elgato.StreamDeck/Plugins/");
-                elgatoPluginDir = new DirectoryInfo(path);
-            }
-            var currentExecutable = new FileInfo(Environment.ProcessPath);
-            if (elgatoPluginDir.FullName == currentExecutable.Directory.FullName)
-            {
-                Console.WriteLine("DevDebug is on within the plugins folder. This should not happen.");
-                return null;
-            }
-            var streamDeckExecutable = GetStreamDeckExecutable();
-            if (streamDeckExecutable == null)
-            {
-                Console.WriteLine("Your Stream Deck must be running to use DevDebug.");
-                Environment.Exit(0);
+            var logParametersOnly = config.GetValue<bool>("DevLogParametersOnly");
+
+            if (devDebug == false || logParametersOnly == true)
                 return null;
 
-            }
-            Console.WriteLine("DevDebug takeover started.");
-            if (OutputArgsIsSetup(elgatoPluginDir) && OutputArgsExist(elgatoPluginDir) && ReadArgs(elgatoPluginDir, out string[] args))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                // Causes DevDebug to be unreliable
-                // Introduced 05/05/2022
-                // UpdateFiles(elgatoPluginDir, streamDeckExecutable);
-                Console.WriteLine("DevDebug takeover success!");
-                return args;
+                Console.WriteLine("DevDebug is untested on mac. Let me know if it works or doesn't work. https://discord.aerove.tech");
             }
-            var restartedSD = UpdateFiles(elgatoPluginDir, streamDeckExecutable);
-            if (ReadArgs(elgatoPluginDir, out string[] args2, restartedSD))
+
+            ElgatoDevTools.SetDeveloperMode(true);
+
+            var pluginUUID = config.GetValue<string>("UUID");
+            if (string.IsNullOrEmpty(pluginUUID))
             {
-                Console.WriteLine("DevDebug takeover success!");
-                return args2;
+                Console.WriteLine("DevDebug requires a UUID to be set in appsettings.json.");
+                Environment.Exit(0);
             }
-            Console.WriteLine("DevDebug failed takeover... Trying to recover...");
-            UpdateFiles(elgatoPluginDir, streamDeckExecutable, true);
-            if (ReadArgs(elgatoPluginDir, out string[] args3, true))
+
+            var installed = ElgatoDevTools.IsPluginInstalled(pluginUUID);
+            if (installed == true)
+            {
+                ElgatoDevTools.StopPlugin(pluginUUID);
+            }
+
+            var elgatoPluginsPath = ElgatoDevTools.GetPluginsPath();
+            var pluginPath = Path.Combine(elgatoPluginsPath, $"{pluginUUID}.sdPlugin");
+            var pluginDirectory = new DirectoryInfo(pluginPath);
+
+            UpdateFiles(pluginDirectory);
+
+            ElgatoDevTools.RestartPlugin(pluginUUID);
+
+            if (ReadArgs(pluginDirectory, out string[]? args, true))
             {
                 Console.WriteLine("DevDebug recovery and takeover success!");
-                return args3;
+                return args;
             }
+
             Console.WriteLine("DevDebug failed. Follow these steps then try again." +
                 "\r\n\t1.) Kill the Stream Deck application." +
                 "\r\n\t2.) Delete the plugin folder for this plugin within the Elgato plugins folder." +
                 "\r\n\t3.) Start the Stream Deck application." +
                 "\r\n\t4.) Run your plugin in debug mode." +
                 "\r\n\t5.) If its still not working please let me know. https://discord.aerove.tech");
+
             Environment.Exit(0);
+
             return null;
         }
 
-        private static bool UpdateFiles(DirectoryInfo elgatoPluginDir, FileInfo streamDeckExecutable, bool forceKill = false)
+        private static void UpdateFiles(DirectoryInfo pluginDirectory)
         {
-            if (forceKill)
-            {
-                KillStreamDeck(streamDeckExecutable, false);
-                elgatoPluginDir.Delete(true);
-            }
-            var currentExecutable = new FileInfo(Environment.ProcessPath);
-            var elgatoDirectoryExists = elgatoPluginDir.Exists;
-            currentExecutable.Directory.TryCopyContents(elgatoPluginDir, true);
-            var appSettingsFilePath = Path.Combine(elgatoPluginDir.FullName, "appsettings.json");
+            var processPath = Environment.ProcessPath;
+
+            if (processPath == null)
+                throw new Exception("Process path returned null. Are you running this on a toaster?");
+
+            var currentExecutable = new FileInfo(processPath);
+
+            var elgatoDirectoryExists = pluginDirectory.Exists;
+
+            currentExecutable.Directory!.TryCopyContents(pluginDirectory, true);
+
+            var appSettingsFilePath = Path.Combine(pluginDirectory.FullName, "appsettings.json");
+
             File.WriteAllText($"{appSettingsFilePath}", "{\"DevLogParametersOnly\":true}");
 
-            if (!elgatoDirectoryExists)
+            var argsPath = Path.Combine(pluginDirectory.FullName, "args.txt");
+            if (File.Exists(argsPath))
             {
-                Console.WriteLine("Directory did not exist. Restart required. Restarting Now...");
-                KillStreamDeck(streamDeckExecutable, true);
-                return true;
-            }
-            else
-            {
-                KillPluginProcess();
-                return false;
+                File.Delete(argsPath);
             }
         }
 
@@ -148,92 +137,5 @@ namespace Aeroverra.StreamDeck.Client.Startup
             args = null;
             return false;
         }
-
-        private static bool OutputArgsIsSetup(DirectoryInfo elgatoPluginDir)
-        {
-            if (!elgatoPluginDir.Exists) { return false; }
-
-            var manifestFile = elgatoPluginDir
-                .GetFiles()
-                .FirstOrDefault(x => x.Name == "appsettings.json");
-
-            if (manifestFile == null) { return false; }
-            var manifest = File.ReadAllText(manifestFile.FullName);
-            var manifestObj = JObject.Parse(manifest);
-            var outputParam = manifestObj["DevLogParametersOnly"];
-            if (outputParam == null || outputParam.ToObject<bool>() == false) { return false; }
-
-            return true;
-        }
-
-        private static bool OutputArgsExist(DirectoryInfo elgatoPluginDir)
-        {
-            var argsPath = Path.Combine(elgatoPluginDir.FullName, "args.txt");
-            var argsFile = new FileInfo(argsPath);
-            if (argsFile.Exists)
-            {
-                return true;
-            }
-            return false;
-        }
-
-        private static FileInfo? GetStreamDeckExecutable()
-        {
-            var process = Process
-                .GetProcesses()
-                .SafeOnly()
-                .Where(x => !x.HasExited)
-                .Where(x => x.MainModule.FileName.EndsWith("StreamDeck.exe") || x.MainModule.FileName.EndsWith("StreamDeck"))
-                .FirstOrDefault();
-            if (process == null)
-            {
-                return null;
-            }
-            return new FileInfo(process.MainModule.FileName);
-
-        }
-
-        private static void KillStreamDeck(FileInfo streamDeckExecutable, bool restart = true)
-        {
-            var processes = Process.GetProcesses().SafeOnly();
-
-            var elgatoProcesses = processes
-               .Where(x => !x.HasExited)
-               .Where(x => x.MainModule.FileName.EndsWith(streamDeckExecutable.Name))
-               .ToList();
-
-            elgatoProcesses.ForEach(x => x.Kill());
-
-            var currentExecutable = new FileInfo(Environment.ProcessPath);
-            var pid = Environment.ProcessId;
-            var pluginProcesses = processes
-                .Where(x => !x.HasExited)
-                .Where(x => x.Id != pid)
-                .Where(x => x.MainModule.FileName.EndsWith(currentExecutable.Name))
-                .ToList();
-
-            pluginProcesses.ForEach(x => x.Kill());
-
-            if (restart)
-            {
-                Process.Start(streamDeckExecutable.FullName);
-            }
-        }
-
-        private static void KillPluginProcess()
-        {
-            var processes = Process.GetProcesses().SafeOnly();
-            var currentExecutable = new FileInfo(Environment.ProcessPath);
-            var pid = Environment.ProcessId;
-            var pluginProcesses = processes
-              .Where(x => !x.HasExited)
-              .Where(x => x.Id != pid)
-              .Where(x => x.MainModule.FileName.EndsWith(currentExecutable.Name))
-              .ToList();
-            pluginProcesses.ForEach(x => x.Kill());
-        }
-
-
-
     }
 }

@@ -72,7 +72,7 @@ namespace Aeroverra.StreamDeck.Client
             RunStreamDeckUrl($"streamdeck://plugins/stop/{uuid}");
         }
 
-        private static bool IsPluginInstalled(string uuid)
+        public static bool IsPluginInstalled(string uuid)
         {
             var pluginsPath = GetPluginsPath();
             if (!Directory.Exists(pluginsPath))
@@ -84,7 +84,7 @@ namespace Aeroverra.StreamDeck.Client
                 .Any(name => name != null && name.Equals(expectedName, StringComparison.OrdinalIgnoreCase));
         }
 
-        private static string GetPluginsPath()
+        public static string GetPluginsPath()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
