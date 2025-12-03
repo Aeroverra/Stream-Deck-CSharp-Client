@@ -4,11 +4,11 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<Authors>Aeroverra AKA Nicholas Halka</Authors>
-		<Company>AutoBuy LLC</Company>
-		<Product>Aerove Stream Deck Client (Legacy)</Product>
-		<Title>Aerove Stream Deck Client (Legacy)</Title>
+		<Company>Aeroverra</Company>
+		<Product>Aeroverra Stream Deck Client</Product>
+		<Title>Aeroverra Stream Deck Client</Title>
 		<Description>An easy to use Client library for making Elgato Stream Deck plugins taking advantage of the .NET service environment. Supports both Windows and Mac OSX natively.</Description>
-		<VersionPrefix>0.8.0</VersionPrefix>
+		<VersionPrefix>0.8.1</VersionPrefix>
 		<VersionSuffix>beta</VersionSuffix>
 		<PackageReleaseNotes>
 		</PackageReleaseNotes>
@@ -23,7 +23,6 @@
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<RepositoryType>git</RepositoryType>
 		<PackageIcon>aerove.png</PackageIcon>
-		<PackageId>Tech.Aerove.StreamDeck.Client</PackageId>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Include="../LICENSE.md" Pack="true" PackagePath="" />
