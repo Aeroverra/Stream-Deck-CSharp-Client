@@ -26,7 +26,10 @@ namespace Tech.Aerove.StreamDeck.Client
         /// <param name="args"></param>
         public static IServiceCollection AddAeroveStreamDeckClient(this IServiceCollection services, HostBuilderContext context)
         {
-            Console.Title = "Aerove Stream Deck Client by Aeroverra";
+            Console.Title = "Aerove Stream Deck Client by Aeroverra (Please use the new package (Aeroverra.StreamDeck.Client)";
+            Console.WriteLine("The StreamDeck Client By Aeroverra has transitioned to a new package name.\r\n" +
+                "Please install the nuget package 'Aeroverra.StreamDeck.Client' to continue using it.");
+            Environment.Exit(0);
             var config = context.Configuration;
             TemplateUpdater.UpdateTemplate(config);
             string[] args = Environment.GetCommandLineArgs();
