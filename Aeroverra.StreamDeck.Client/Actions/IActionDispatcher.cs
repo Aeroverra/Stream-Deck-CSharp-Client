@@ -167,6 +167,30 @@
         /// <param name="device"></param>
         /// <param name="profile"></param>
         Task SwitchToProfileAsync(string device, string profile);
+
+        /// <summary>
+        /// Send feedback values to the Stream Deck Plus displays.
+        /// </summary>
+        /// <param name="payload">Anonymous object matching the setFeedback payload schema.</param>
+        void SetFeedback(object payload);
+
+        /// <summary>
+        /// Send feedback values to the Stream Deck Plus displays.
+        /// </summary>
+        /// <param name="payload">Anonymous object matching the setFeedback payload schema.</param>
+        Task SetFeedbackAsync(object payload);
+
+        /// <summary>
+        /// Update the feedback layout for the current action instance.
+        /// </summary>
+        /// <param name="layout">Layout string returned by a registered layout.</param>
+        void SetFeedbackLayout(string layout);
+
+        /// <summary>
+        /// Update the feedback layout for the current action instance.
+        /// </summary>
+        /// <param name="layout">Layout string returned by a registered layout.</param>
+        Task SetFeedbackLayoutAsync(string layout);
     }
 
 }

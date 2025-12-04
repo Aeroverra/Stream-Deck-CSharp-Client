@@ -29,6 +29,10 @@ namespace Aeroverra.StreamDeck.Client.Events
         public event EventHandler<PropertyInspectorDidAppearEvent>? OnPropertyInspectorDidAppear;
         public event EventHandler<PropertyInspectorDidDisappearEvent>? OnPropertyInspectorDidDisappear;
         public event EventHandler<SendToPluginEvent>? OnSendToPlugin;
+        public event EventHandler<DialRotateEvent>? OnDialRotate;
+        public event EventHandler<DialDownEvent>? OnDialDown;
+        public event EventHandler<DialUpEvent>? OnDialUp;
+        public event EventHandler<TouchTapEvent>? OnTouchTap;
 
 
         internal void HandleIncoming(IElgatoEvent? elgatoEvent)
@@ -131,6 +135,30 @@ namespace Aeroverra.StreamDeck.Client.Events
                         {
                             var e = (SendToPluginEvent)actionEvent;
                             OnSendToPlugin?.Invoke(this, e);
+                            break;
+                        }
+                    case ElgatoEventType.DialRotate:
+                        {
+                            var e = (DialRotateEvent)actionEvent;
+                            OnDialRotate?.Invoke(this, e);
+                            break;
+                        }
+                    case ElgatoEventType.DialDown:
+                        {
+                            var e = (DialDownEvent)actionEvent;
+                            OnDialDown?.Invoke(this, e);
+                            break;
+                        }
+                    case ElgatoEventType.DialUp:
+                        {
+                            var e = (DialUpEvent)actionEvent;
+                            OnDialUp?.Invoke(this, e);
+                            break;
+                        }
+                    case ElgatoEventType.TouchTap:
+                        {
+                            var e = (TouchTapEvent)actionEvent;
+                            OnTouchTap?.Invoke(this, e);
                             break;
                         }
                 }

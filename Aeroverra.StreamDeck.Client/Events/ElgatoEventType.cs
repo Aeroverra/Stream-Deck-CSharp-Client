@@ -21,5 +21,9 @@ namespace Aeroverra.StreamDeck.Client.Events
         PropertyInspectorDidAppear,
         PropertyInspectorDidDisappear,
         SendToPlugin,
+        DialRotate,
+        DialDown,
+        DialUp,
+        TouchTap,
     }
 }

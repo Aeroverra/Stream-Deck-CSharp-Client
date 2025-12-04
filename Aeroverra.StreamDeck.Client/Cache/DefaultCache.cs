@@ -1,5 +1,6 @@
 ﻿using Aeroverra.StreamDeck.Client.Actions;
 using Aeroverra.StreamDeck.Client.Events;
+using Aeroverra.StreamDeck.Client.Events.SharedModels;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
@@ -50,6 +51,18 @@ namespace Aeroverra.StreamDeck.Client.Cache
                     case ElgatoEventType.ApplicationDidTerminate:
                         ApplicationDidTerminate((ApplicationDidTerminateEvent)e);
                         return;
+                    case ElgatoEventType.DialRotate:
+                        DialRotate((DialRotateEvent)e);
+                        return;
+                    case ElgatoEventType.DialDown:
+                        DialDown((DialDownEvent)e);
+                        return;
+                    case ElgatoEventType.DialUp:
+                        DialUp((DialUpEvent)e);
+                        return;
+                    case ElgatoEventType.TouchTap:
+                        TouchTap((TouchTapEvent)e);
+                        return;
                 }
             }
         }
@@ -98,6 +111,35 @@ namespace Aeroverra.StreamDeck.Client.Cache
             instance.Settings = e.Payload.Settings;
             instance.IsInMultiAction = e.Payload.IsInMultiAction;
             instance.State = e.Payload.State;
+        }
+
+        private void DialRotate(DialRotateEvent e)
+        {
+            UpdateEncoderInstance(e.Device, e.Context, e.Payload);
+        }
+
+        private void DialDown(DialDownEvent e)
+        {
+            UpdateEncoderInstance(e.Device, e.Context, e.Payload);
+        }
+
+        private void DialUp(DialUpEvent e)
+        {
+            UpdateEncoderInstance(e.Device, e.Context, e.Payload);
+        }
+
+        private void TouchTap(TouchTapEvent e)
+        {
+            UpdateEncoderInstance(e.Device, e.Context, e.Payload);
+        }
+
+        private void UpdateEncoderInstance(string deviceId, string contextId, EncoderPayload payload)
+        {
+            var device = Devices.SingleOrDefault(x => x.Id == deviceId);
+            var instance = device.ActionInstances.SingleOrDefault(x => x.Id == contextId);
+            instance.Column = payload.Coordinates?.Column;
+            instance.Row = payload.Coordinates?.Row;
+            instance.Settings = payload.Settings;
         }
 
         // Creates a new Instance when moving but if you switch views and back it is the same instance

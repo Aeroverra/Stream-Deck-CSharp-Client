@@ -55,6 +55,34 @@ namespace Aeroverra.StreamDeck.Client.Actions
                             await action.KeyUpAsync(e.Payload.UserDesiredState);
                             break;
                         }
+                    case ElgatoEventType.DialRotate:
+                        {
+                            var e = (DialRotateEvent)actionEvent;
+                            action.DialRotate(e.Payload);
+                            await action.DialRotateAsync(e.Payload);
+                            break;
+                        }
+                    case ElgatoEventType.DialDown:
+                        {
+                            var e = (DialDownEvent)actionEvent;
+                            action.DialDown(e.Payload);
+                            await action.DialDownAsync(e.Payload);
+                            break;
+                        }
+                    case ElgatoEventType.DialUp:
+                        {
+                            var e = (DialUpEvent)actionEvent;
+                            action.DialUp(e.Payload);
+                            await action.DialUpAsync(e.Payload);
+                            break;
+                        }
+                    case ElgatoEventType.TouchTap:
+                        {
+                            var e = (TouchTapEvent)actionEvent;
+                            action.TouchTap(e.Payload);
+                            await action.TouchTapAsync(e.Payload);
+                            break;
+                        }
                     case ElgatoEventType.WillAppear:
                         {
                             action.WillAppear();

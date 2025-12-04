@@ -108,7 +108,7 @@ namespace Aeroverra.StreamDeck.Client
                             memoryStream.Write(buffer.Array, buffer.Offset, response.Count);
                         }
                     }
-                    while (!response.EndOfMessage);
+                    while (!response.EndOfMessage && _cancellationTokenSource?.IsCancellationRequested == false);
                     using (StreamReader reader = new StreamReader(memoryStream, Encoding.UTF8))
                     {
                         memoryStream.Seek(0, SeekOrigin.Begin);

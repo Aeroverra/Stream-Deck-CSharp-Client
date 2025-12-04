@@ -66,6 +66,18 @@ namespace Aeroverra.StreamDeck.Client.Events
                 case ElgatoEventType.SendToPlugin:
                     elgatoEvent = JsonConvert.DeserializeObject<SendToPluginEvent>(json);
                     break;
+                case ElgatoEventType.DialRotate:
+                    elgatoEvent = JsonConvert.DeserializeObject<DialRotateEvent>(json);
+                    break;
+                case ElgatoEventType.DialDown:
+                    elgatoEvent = JsonConvert.DeserializeObject<DialDownEvent>(json);
+                    break;
+                case ElgatoEventType.DialUp:
+                    elgatoEvent = JsonConvert.DeserializeObject<DialUpEvent>(json);
+                    break;
+                case ElgatoEventType.TouchTap:
+                    elgatoEvent = JsonConvert.DeserializeObject<TouchTapEvent>(json);
+                    break;
             }
             elgatoEvent.Raw = json;
             elgatoEvent.RawJObject = jsonObject;

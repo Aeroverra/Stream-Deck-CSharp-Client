@@ -192,5 +192,33 @@
         /// <param name="device">A value to identify the device.</param>
         /// <param name="profile">The name of the profile to switch to. The name should be identical to the name provided in the manifest.json file.</param>
         Task SwitchToProfileAsync(string device, string profile);
+
+        /// <summary>
+        /// Send feedback values to the Stream Deck Plus displays.
+        /// </summary>
+        /// <param name="context">A value to identify the instance's action.</param>
+        /// <param name="payload">Anonymous object matching the setFeedback payload schema.</param>
+        void SetFeedback(string context, object payload);
+
+        /// <summary>
+        /// Send feedback values to the Stream Deck Plus displays.
+        /// </summary>
+        /// <param name="context">A value to identify the instance's action.</param>
+        /// <param name="payload">Anonymous object matching the setFeedback payload schema.</param>
+        Task SetFeedbackAsync(string context, object payload);
+
+        /// <summary>
+        /// Update the feedback layout for the current action instance.
+        /// </summary>
+        /// <param name="context">A value to identify the instance's action.</param>
+        /// <param name="layout">Layout string returned by a registered layout.</param>
+        void SetFeedbackLayout(string context, string layout);
+
+        /// <summary>
+        /// Update the feedback layout for the current action instance.
+        /// </summary>
+        /// <param name="context">A value to identify the instance's action.</param>
+        /// <param name="layout">Layout string returned by a registered layout.</param>
+        Task SetFeedbackLayoutAsync(string context, string layout);
     }
 }

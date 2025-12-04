@@ -143,6 +143,28 @@
             return _dispatcher.SwitchToProfileAsync(device, profile);
         }
 
+        public void SetFeedback(object payload)
+        {
+
+            Task.Run(() => SetFeedbackAsync(payload)).Wait();
+        }
+
+        public Task SetFeedbackAsync(object payload)
+        {
+            return _dispatcher.SetFeedbackAsync(_context.InstanceId, payload);
+        }
+
+        public void SetFeedbackLayout(string layout)
+        {
+
+            Task.Run(() => SetFeedbackLayoutAsync(layout)).Wait();
+        }
+
+        public Task SetFeedbackLayoutAsync(string layout)
+        {
+            return _dispatcher.SetFeedbackLayoutAsync(_context.InstanceId, layout);
+        }
+
         public void SendToPropertyInspector(object data)
         {
 

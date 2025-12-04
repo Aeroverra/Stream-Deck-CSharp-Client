@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Aeroverra.StreamDeck.Client.Events.SharedModels;
+using Newtonsoft.Json.Linq;
 
 namespace Aeroverra.StreamDeck.Client.Actions
 {
@@ -154,6 +155,78 @@ namespace Aeroverra.StreamDeck.Client.Actions
         /// </summary>
         /// <param name="userDesiredState">Only set when the action is triggered with a specific value from a Multi-Action. For example, if the user sets the Game Capture Record action to be disabled in a Multi-Action, you would see the value 1. 0 and 1 are valid.</param>
         public virtual Task KeyUpAsync(int userDesiredState)
+        {
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// When the user rotates the dial, the plugin receives the dialRotate event.
+        /// </summary>
+        /// <param name="payload">Contains tick count, press state, coordinates, settings, and resources.</param>
+        public virtual void DialRotate(DialRotatePayload payload)
+        {
+
+        }
+
+        /// <summary>
+        /// When the user rotates the dial, the plugin receives the dialRotate event.
+        /// </summary>
+        /// <param name="payload">Contains tick count, press state, coordinates, settings, and resources.</param>
+        public virtual Task DialRotateAsync(DialRotatePayload payload)
+        {
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// When the user presses the dial, the plugin receives the dialDown event.
+        /// </summary>
+        /// <param name="payload">Contains coordinates, settings, and resources.</param>
+        public virtual void DialDown(EncoderPayload payload)
+        {
+
+        }
+
+        /// <summary>
+        /// When the user presses the dial, the plugin receives the dialDown event.
+        /// </summary>
+        /// <param name="payload">Contains coordinates, settings, and resources.</param>
+        public virtual Task DialDownAsync(EncoderPayload payload)
+        {
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// When the user releases the dial, the plugin receives the dialUp event.
+        /// </summary>
+        /// <param name="payload">Contains coordinates, settings, and resources.</param>
+        public virtual void DialUp(EncoderPayload payload)
+        {
+
+        }
+
+        /// <summary>
+        /// When the user releases the dial, the plugin receives the dialUp event.
+        /// </summary>
+        /// <param name="payload">Contains coordinates, settings, and resources.</param>
+        public virtual Task DialUpAsync(EncoderPayload payload)
+        {
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// When the user taps the touch display, the plugin receives the touchTap event.
+        /// </summary>
+        /// <param name="payload">Contains tap position, hold flag, coordinates, settings, and resources.</param>
+        public virtual void TouchTap(TouchTapPayload payload)
+        {
+
+        }
+
+        /// <summary>
+        /// When the user taps the touch display, the plugin receives the touchTap event.
+        /// </summary>
+        /// <param name="payload">Contains tap position, hold flag, coordinates, settings, and resources.</param>
+        public virtual Task TouchTapAsync(TouchTapPayload payload)
         {
             return Task.CompletedTask;
         }

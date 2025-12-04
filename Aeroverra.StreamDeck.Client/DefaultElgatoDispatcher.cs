@@ -264,6 +264,43 @@ namespace Aeroverra.StreamDeck.Client
             return _pipeline.HandleOutgoing(message);
         }
 
+        public void SetFeedback(string context, object payload)
+        {
+
+            Task.Run(() => SetFeedbackAsync(context, payload)).Wait();
+        }
+
+        public Task SetFeedbackAsync(string context, object payload)
+        {
+            var message = new
+            {
+                Event = "setFeedback",
+                Context = context,
+                Payload = payload
+            };
+            return _pipeline.HandleOutgoing(message);
+        }
+
+        public void SetFeedbackLayout(string context, string layout)
+        {
+
+            Task.Run(() => SetFeedbackLayoutAsync(context, layout)).Wait();
+        }
+
+        public Task SetFeedbackLayoutAsync(string context, string layout)
+        {
+            var message = new
+            {
+                Event = "setFeedbackLayout",
+                Context = context,
+                Payload = new
+                {
+                    Layout = layout
+                }
+            };
+            return _pipeline.HandleOutgoing(message);
+        }
+
         public void SendToPropertyInspector(string context, string action, object data)
         {
 
