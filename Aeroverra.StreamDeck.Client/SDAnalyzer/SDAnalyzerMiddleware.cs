@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
-using Aeroverra.StreamDeck.Client.Events;
+﻿using Aeroverra.StreamDeck.Client.Events;
 using Aeroverra.StreamDeck.Client.Pipeline;
 using Aeroverra.StreamDeck.Client.Pipeline.Middleware;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 
 namespace Aeroverra.StreamDeck.Client.SDAnalyzer
 {

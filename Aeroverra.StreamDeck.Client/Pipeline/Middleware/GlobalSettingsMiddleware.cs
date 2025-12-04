@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Aeroverra.StreamDeck.Client.Events;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using Aeroverra.StreamDeck.Client.Events;
 
 namespace Aeroverra.StreamDeck.Client.Pipeline.Middleware
 {
@@ -14,6 +14,7 @@ namespace Aeroverra.StreamDeck.Client.Pipeline.Middleware
             _logger = logger;
             _pipeline = pipeline;
         }
+
         public override Task HandleIncoming(IElgatoEvent message)
         {
 
@@ -22,13 +23,14 @@ namespace Aeroverra.StreamDeck.Client.Pipeline.Middleware
 
         public override async Task HandleOutgoing(JObject message)
         {
-            if (message["event"].ToString() == "setGlobalSettings")
+            if (message["event"]?.ToString() == "setGlobalSettings")
             {
                 var jo = new JObject();
                 jo["event"] = "didReceiveGlobalSettings";
                 var jo2 = new JObject();
                 jo.Add("payload", jo2);
                 jo2.Add("settings", message["payload"]);
+                // Resend to pipeline as incoming message as the stream deck does not rebroadcast it.
                 await _pipeline.HandleIncoming(jo.ToString());
             }
             await NextDelegate.InvokeNextOutgoing(message);

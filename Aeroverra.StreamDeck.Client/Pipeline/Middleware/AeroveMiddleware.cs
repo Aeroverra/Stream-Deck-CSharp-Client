@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Aeroverra.StreamDeck.Client.Events;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using Aeroverra.StreamDeck.Client.Events;
 
 namespace Aeroverra.StreamDeck.Client.Pipeline.Middleware
 {

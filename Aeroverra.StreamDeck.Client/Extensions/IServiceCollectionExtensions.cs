@@ -1,19 +1,19 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Aeroverra.StreamDeck.Client.Actions;
+﻿using Aeroverra.StreamDeck.Client.Actions;
 using Aeroverra.StreamDeck.Client.Cache;
 using Aeroverra.StreamDeck.Client.Events;
 using Aeroverra.StreamDeck.Client.Pipeline;
 using Aeroverra.StreamDeck.Client.Pipeline.Middleware;
 using Aeroverra.StreamDeck.Client.Startup;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Aeroverra.StreamDeck.Client
 {
     public static class IServiceCollectionExtensions
     {
-
         /// <summary>
         /// Adds the Aerove Stream Deck Client to your project.
         /// This handles are the hard work of communicating with the stream deck
@@ -24,6 +24,8 @@ namespace Aeroverra.StreamDeck.Client
         /// <param name="args"></param>
         public static IServiceCollection AddAeroveStreamDeckClient(this IServiceCollection services, HostBuilderContext context)
         {
+            ILogger logger = NullLoggerFactory.Instance.CreateLogger("IServiceCollectionExtensions");
+
             Console.Title = "Aerove Stream Deck Client by Aeroverra";
             string[] args = Environment.GetCommandLineArgs();
             var config = context.Configuration;
@@ -35,20 +37,18 @@ namespace Aeroverra.StreamDeck.Client
             if (logParametersOnly == true)
             {
                 DevDebug.OutputArgs(config);
+                logger.LogInformation("WebSocketService did not startup. Logging parameters only.");
             }
             else if (devDebug == true)
             {
                 args = DevDebug.TakeOver(config);
             }
+            if (logParametersOnly == false)
+            {
+                services.AddHostedService<StreamDeckCoreWorker>();
+            }
 
-
-  
-      
-
-
-
-            services.AddHostedService<StreamDeckCoreWorker>();
-            services.AddSingleton<ElgatoWebSocket>();
+            services.AddSingleton<IElgatoWebSocket, ElgatoWebSocket>();
             services.AddSingleton<StreamDeckInfo>(x => new StreamDeckInfo(x.GetRequiredService<ILogger<StreamDeckInfo>>(), args.ToList()));
             services.AddTransient<ManifestInfo>();
 

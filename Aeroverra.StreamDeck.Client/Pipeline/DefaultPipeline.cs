@@ -1,10 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Aeroverra.StreamDeck.Client.Actions;
+using Aeroverra.StreamDeck.Client.Cache;
+using Aeroverra.StreamDeck.Client.Events;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
-using Aeroverra.StreamDeck.Client.Actions;
-using Aeroverra.StreamDeck.Client.Cache;
-using Aeroverra.StreamDeck.Client.Events;
 
 namespace Aeroverra.StreamDeck.Client.Pipeline
 {
@@ -17,8 +17,9 @@ namespace Aeroverra.StreamDeck.Client.Pipeline
         private readonly ICache _cache;
         private readonly NextDelegate _nextDelegate;
         private readonly EventManager _eventManager;
-        private WebSocketService _socket;
-        public DefaultPipeline(ILogger<DefaultPipeline> logger, MessageParser messageParser, IActionFactory actionFactory, IActionExecuter actionExecuter, ICache cache, MiddlewareBuilder middlewareBuilder, EventManager eventManager)
+        private readonly IElgatoWebSocket _elgatoWebSocket;
+
+        public DefaultPipeline(ILogger<DefaultPipeline> logger, MessageParser messageParser, IActionFactory actionFactory, IActionExecuter actionExecuter, ICache cache, MiddlewareBuilder middlewareBuilder, EventManager eventManager, IElgatoWebSocket elgatoWebSocket)
         {
             _logger = logger;
             _messageParser = messageParser;
@@ -27,15 +28,41 @@ namespace Aeroverra.StreamDeck.Client.Pipeline
             _cache = cache;
             _nextDelegate = middlewareBuilder.Build(HandleIncomingFinal, HandleOutgoingFinal);
             _eventManager = eventManager;
-
+            _elgatoWebSocket = elgatoWebSocket;
         }
-        public void SetWebSocket(WebSocketService socket)
+
+
+
+        public async Task StartListening(CancellationToken cancellationToken)
         {
-            if (_socket == null)
+            while (cancellationToken.IsCancellationRequested == false)
             {
-                _socket = socket;
+                try
+                {
+                    var message = await _elgatoWebSocket.ListenAsync();
+                    if (message == null)
+                    {
+                        _logger.LogError("Recieved null message from {ClassName}", nameof(IElgatoWebSocket));
+                        continue;
+                    }
+
+                    var elgatoEvent = _messageParser.Parse(message);
+                    if (elgatoEvent == null)
+                    {
+                        _logger.LogError("Event parsed null from {ClassName} {Message}", nameof(IElgatoWebSocket), message);
+                        continue;
+                    }
+
+                    await _nextDelegate.InvokeNextIncoming(elgatoEvent);
+
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Error when handling event");
+                }
             }
         }
+
         public async Task HandleIncoming(string message)
         {
             var elgatoEvent = _messageParser.Parse(message);
@@ -43,6 +70,15 @@ namespace Aeroverra.StreamDeck.Client.Pipeline
 
             await _nextDelegate.InvokeNextIncoming(elgatoEvent);
         }
+
+        public async Task HandleOutgoing(object message)
+        {
+            //todo: check if this is needed or not because it may just be doing the same thing the elgatowebsocket does
+            var settings = new JsonSerializerSettings { ContractResolver = new DefaultContractResolver { NamingStrategy = new CamelCaseNamingStrategy() } };
+            var json = JsonConvert.SerializeObject(message, settings);
+            await _nextDelegate.InvokeNextOutgoing(JObject.Parse(json));
+        }
+
         private async Task HandleIncomingFinal(IElgatoEvent elgatoEvent)
         {
             _cache.Update(elgatoEvent);
@@ -51,17 +87,9 @@ namespace Aeroverra.StreamDeck.Client.Pipeline
             _eventManager.HandleIncoming(elgatoEvent);
         }
 
-        public async Task HandleOutgoing(object message)
-        {
-            var settings = new JsonSerializerSettings { ContractResolver = new DefaultContractResolver { NamingStrategy = new CamelCaseNamingStrategy() } };
-            var json = JsonConvert.SerializeObject(message, settings);
-            await _nextDelegate.InvokeNextOutgoing(JObject.Parse(json));
-        }
         private Task HandleOutgoingFinal(JObject message)
         {
-            return _socket.SendAsync(message);
+            return _elgatoWebSocket.SendAsync(message);
         }
-
-
     }
 }

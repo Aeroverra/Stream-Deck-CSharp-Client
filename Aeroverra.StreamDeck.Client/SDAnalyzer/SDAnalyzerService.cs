@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-using Aeroverra.StreamDeck.Client.Events;
+﻿using Aeroverra.StreamDeck.Client.Events;
 using Aeroverra.StreamDeck.Client.SDAnalyzer.ManifestModels;
 using Aeroverra.StreamDeck.Client.Startup;
+using Microsoft.Extensions.Logging;
 
 namespace Aeroverra.StreamDeck.Client.SDAnalyzer
 {

@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Aeroverra.StreamDeck.Client.Pipeline;
+﻿using Aeroverra.StreamDeck.Client.Pipeline;
 using Aeroverra.StreamDeck.Client.Startup;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Aeroverra.StreamDeck.Client
 {

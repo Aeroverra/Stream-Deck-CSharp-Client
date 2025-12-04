@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Aeroverra.StreamDeck.Client.Events;
+using Aeroverra.StreamDeck.Client.Pipeline.Middleware;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using Aeroverra.StreamDeck.Client.Events;
-using Aeroverra.StreamDeck.Client.Pipeline.Middleware;
 
 namespace Aeroverra.StreamDeck.Client.Pipeline
 {

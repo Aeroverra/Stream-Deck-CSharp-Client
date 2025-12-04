@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
-using Aeroverra.StreamDeck.Client.Cache;
+﻿using Aeroverra.StreamDeck.Client.Cache;
+using Newtonsoft.Json.Linq;
 
 namespace Aeroverra.StreamDeck.Client.Actions
 {

@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Aeroverra.StreamDeck.Client.Cache;
+using Aeroverra.StreamDeck.Client.Events;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
-using Aeroverra.StreamDeck.Client.Cache;
-using Aeroverra.StreamDeck.Client.Events;
 
 namespace Aeroverra.StreamDeck.Client.Actions
 {
