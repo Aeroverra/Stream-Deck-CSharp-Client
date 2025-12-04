@@ -47,14 +47,15 @@ namespace Aeroverra.StreamDeck.Client
             {
                 services.AddHostedService<StreamDeckCoreWorker>();
             }
-
             services.AddSingleton<IElgatoWebSocket, ElgatoWebSocket>();
             services.AddSingleton<StreamDeckInfo>(x => new StreamDeckInfo(x.GetRequiredService<ILogger<StreamDeckInfo>>(), args.ToList()));
+            services.AddSingleton<IPipeline, DefaultPipeline>();
+
             services.AddTransient<ManifestInfo>();
 
 
 
-            services.AddSingleton<IPipeline, DefaultPipeline>();
+
             services.AddSingleton<MessageParser>();
             services.AddSingleton<ICache, DefaultCache>();
             services.AddSingleton<IActionFactory, DefaultActionFactory>();

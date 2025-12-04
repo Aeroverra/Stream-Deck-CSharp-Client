@@ -12,10 +12,14 @@ namespace Aeroverra.StreamDeck.Client.Pipeline.Middleware
         private Formatting Format = Formatting.None;
         private readonly bool formatted;
         private readonly bool typeOnly;
+        private readonly bool incoming;
+        private readonly bool outgoing;
 
         public EventLoggingMiddleware(ILogger<EventLoggingMiddleware> logger, IConfiguration config)
         {
             _logger = logger;
+            incoming = config.GetValue<bool>("ElgatoEventLoggingIncoming", true);
+            outgoing = config.GetValue<bool>("ElgatoEventLoggingOutgoing", true);
             typeOnly = config.GetValue<bool>("ElgatoEventLoggingTypeOnly", false);
             formatted = config.GetValue<bool>("ElgatoEventLoggingFormatted", false);
             if (formatted)
@@ -33,31 +37,37 @@ namespace Aeroverra.StreamDeck.Client.Pipeline.Middleware
         }
         public override Task HandleIncoming(IElgatoEvent message)
         {
-            if (typeOnly)
+            if (incoming == true)
             {
-                _logger.LogDebug("[{direction}] Event Type: {eventtype}", "Received", message.Event);
+                if (typeOnly)
+                {
+                    _logger.LogDebug("[{direction}] Event Type: {eventtype}", "Received", message.Event);
 
-            }
-            else
-            {
-                _logger.LogDebug("[{direction}] Event Type: {eventtype} Data: {incomingevent}", "Received", message.Event, JsonConvert.SerializeObject(message.RawJObject, Format));
+                }
+                else
+                {
+                    _logger.LogDebug("[{direction}] Event Type: {eventtype} Data: {incomingevent}", "Received", message.Event, JsonConvert.SerializeObject(message.RawJObject, Format));
 
+                }
             }
             return NextDelegate.InvokeNextIncoming(message);
         }
 
         public override Task HandleOutgoing(JObject message)
         {
-            string eventType = $"{message["event"]}";
-            if (typeOnly)
+            if (outgoing == true)
             {
-                _logger.LogDebug("[{direction}] Event Type: {eventtype}", "Sending", eventType);
+                string eventType = $"{message["event"]}";
+                if (typeOnly)
+                {
+                    _logger.LogDebug("[{direction}] Event Type: {eventtype}", "Sending", eventType);
 
-            }
-            else
-            {
-                _logger.LogDebug("[{direction}] Event Type: {eventtype} Data: {outgoingevent}", "Sending", eventType, message.ToString(Format));
+                }
+                else
+                {
+                    _logger.LogDebug("[{direction}] Event Type: {eventtype} Data: {outgoingevent}", "Sending", eventType, message.ToString(Format));
 
+                }
             }
             return NextDelegate.InvokeNextOutgoing(message);
         }

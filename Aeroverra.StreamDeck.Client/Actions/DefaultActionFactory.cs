@@ -15,13 +15,13 @@ namespace Aeroverra.StreamDeck.Client.Actions
     internal class DefaultActionFactory : IActionFactory
     {
         private readonly IServiceProvider _services;
-        private readonly ILogger<DefaultTransientActionFactory> _logger;
+        private readonly ILogger<DefaultActionFactory> _logger;
         private readonly ICache _cache;
         private readonly ManifestInfo _manifest;
         private readonly IElgatoDispatcher _dispatcher;
         private List<ActionInfo> ActionInfo = new List<ActionInfo>();
         private Dictionary<string, ActionBase> Instances = new Dictionary<string, ActionBase>();
-        public DefaultActionFactory(IServiceProvider services, ILogger<DefaultTransientActionFactory> logger,
+        public DefaultActionFactory(IServiceProvider services, ILogger<DefaultActionFactory> logger,
             ICache cache, ManifestInfo manifest, IElgatoDispatcher dispatcher)
         {
             _services = services;
@@ -40,25 +40,28 @@ namespace Aeroverra.StreamDeck.Client.Actions
             {
                 var instanceIds = GetInstanceIds(elgatoEvent);
                 List<ActionBase> actions = new List<ActionBase>();
-                var existingKeys = new List<string>();
+
                 foreach (var instanceId in instanceIds)
                 {
-                    var exists = Instances.Any(x => x.Key == instanceId);
-                    if (!exists) { continue; }
-                    var instance = Instances.Where(x => x.Key == instanceId).Select(x => x.Value).SingleOrDefault();
-                    existingKeys.Add(instanceId);
-                    actions.Add(instance);
-                }
-                instanceIds.RemoveAll(x => existingKeys.Contains(x));
-                foreach (var instanceId in instanceIds)
-                {
-                    ActionBase action = GetInstance(instanceId);
+                    var instance = Instances
+                        .Where(x => x.Key == instanceId)
+                        .Select(x => x.Value)
+                        .SingleOrDefault();
+
+                    if (instance is not null)
+                    {
+                        actions.Add(instance);
+                        continue;
+                    }
+
+                    ActionBase? action = GetInstance(instanceId);
                     if (action != null)
                     {
                         actions.Add(action);
                         Instances.Add(instanceId, action);
                     }
                 }
+
                 return actions;
             }
 

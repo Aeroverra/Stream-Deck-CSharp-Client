@@ -31,8 +31,6 @@ namespace Aeroverra.StreamDeck.Client.Pipeline
             _elgatoWebSocket = elgatoWebSocket;
         }
 
-
-
         public async Task StartListening(CancellationToken cancellationToken)
         {
             while (cancellationToken.IsCancellationRequested == false)

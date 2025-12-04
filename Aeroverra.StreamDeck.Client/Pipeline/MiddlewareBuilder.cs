@@ -75,6 +75,11 @@ namespace Aeroverra.StreamDeck.Client.Pipeline
                 }
             }
             var instance = Activator.CreateInstance(type, parameters.ToArray()) as MiddlewareBase;
+            if (instance is null)
+            {
+                _logger.LogError("Failed to create middleware instance of type {TypeName}", type.FullName);
+                throw new Exception($"Failed to create middleware pipeline due to instance creation issue.");
+            }
             instance.NextDelegate = nextDelegate;
             return instance;
         }

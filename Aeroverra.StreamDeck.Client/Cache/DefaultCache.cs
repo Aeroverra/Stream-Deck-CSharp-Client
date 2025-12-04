@@ -1,10 +1,11 @@
 ﻿using Aeroverra.StreamDeck.Client.Actions;
 using Aeroverra.StreamDeck.Client.Events;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
 namespace Aeroverra.StreamDeck.Client.Cache
 {
-    internal class DefaultCache : ICache
+    internal class DefaultCache(ILogger<DefaultCache> logger) : ICache
     {
         public List<Device> Devices = new List<Device>();
         public JObject GlobalSettings = new JObject();
@@ -99,6 +100,7 @@ namespace Aeroverra.StreamDeck.Client.Cache
             instance.State = e.Payload.State;
         }
 
+        // Creates a new Instance when moving but if you switch views and back it is the same instance
         private void WillAppear(WillAppearEvent e)
         {
             var device = Devices.SingleOrDefault(x => x.Id == e.Device);
