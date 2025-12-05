@@ -5,6 +5,8 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using System.Net.Sockets;
+using System.Net.WebSockets;
 
 namespace Aeroverra.StreamDeck.Client.Pipeline
 {
@@ -54,10 +56,16 @@ namespace Aeroverra.StreamDeck.Client.Pipeline
                     await _nextDelegate.InvokeNextIncoming(elgatoEvent);
 
                 }
+                catch (WebSocketException)
+                {
+                    throw;
+                }
                 catch (Exception e)
                 {
                     _logger.LogError(e, "Error when handling event");
+                    await Task.Delay(1000);
                 }
+
             }
         }
 

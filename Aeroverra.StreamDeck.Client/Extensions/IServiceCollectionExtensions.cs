@@ -3,9 +3,11 @@ using Aeroverra.StreamDeck.Client.Cache;
 using Aeroverra.StreamDeck.Client.Events;
 using Aeroverra.StreamDeck.Client.Pipeline;
 using Aeroverra.StreamDeck.Client.Pipeline.Middleware;
+using Aeroverra.StreamDeck.Client.Services;
 using Aeroverra.StreamDeck.Client.Startup;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -63,7 +65,7 @@ namespace Aeroverra.StreamDeck.Client
             services.AddSingleton<IActionExecuter, DefaultActionExecuter>();
             services.AddSingleton<EventManager>();
             services.AddSingleton<IElgatoDispatcher, DefaultElgatoDispatcher>();
-
+            services.AddSingleton<SettingsListenerService>();
 
             if (config.GetValue<bool>("SDAnalyzerEnabled", true))
             {
@@ -86,6 +88,7 @@ namespace Aeroverra.StreamDeck.Client
                 return builder;
             });
 
+            services.TryAddSingleton<IGlobalSettings, DefaultGlobalSettings>();
             return services;
 
 

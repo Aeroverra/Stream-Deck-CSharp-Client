@@ -74,6 +74,12 @@ namespace Aeroverra.StreamDeck.Client
 
             try
             {
+                if(_socket.State != WebSocketState.Open)
+                {
+                    logger.LogCritical("Could not send message to Elgato because socket is not open: {message}", json);
+                    return;
+                }
+
                 await _sendLock.WaitAsync();
                 byte[] bytes = Encoding.UTF8.GetBytes(json);
                 ArraySegment<byte> buffer = new ArraySegment<byte>(bytes);
@@ -130,8 +136,8 @@ namespace Aeroverra.StreamDeck.Client
             catch (Exception e)
             {
                 logger.LogCritical(e, "Listener died in exception.");
+                throw;
             }
-            return null;
         }
 
         public async Task DisconnectAsync()
