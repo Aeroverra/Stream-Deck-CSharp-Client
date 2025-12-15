@@ -25,5 +25,9 @@ namespace Aeroverra.StreamDeck.Client.Events
         DialDown,
         DialUp,
         TouchTap,
+
+        //SDK Events
+        OnInitialized,
+        Dispose
     }
 }

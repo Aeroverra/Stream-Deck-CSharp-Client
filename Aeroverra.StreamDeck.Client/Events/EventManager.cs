@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Aeroverra.StreamDeck.Client.Events.SDKEvents;
+using Microsoft.Extensions.Logging;
+using System;
 
 namespace Aeroverra.StreamDeck.Client.Events
 {
@@ -33,6 +35,8 @@ namespace Aeroverra.StreamDeck.Client.Events
         public event EventHandler<DialDownEvent>? OnDialDown;
         public event EventHandler<DialUpEvent>? OnDialUp;
         public event EventHandler<TouchTapEvent>? OnTouchTap;
+        public event EventHandler<OnInitializedEvent>? OnInitialized;
+        public event EventHandler<DisposeEvent>? Dispose;
 
 
         internal void HandleIncoming(IElgatoEvent? elgatoEvent)
@@ -42,8 +46,6 @@ namespace Aeroverra.StreamDeck.Client.Events
 
             try
             {
-
-
                 var actionEvent = elgatoEvent;
                 switch (elgatoEvent.Event)
                 {
@@ -159,6 +161,19 @@ namespace Aeroverra.StreamDeck.Client.Events
                         {
                             var e = (TouchTapEvent)actionEvent;
                             OnTouchTap?.Invoke(this, e);
+                            break;
+                        }
+                    case ElgatoEventType.OnInitialized:
+                        {
+                            var e = (OnInitializedEvent)actionEvent;
+                            OnInitialized?.Invoke(this, e);
+                            break;
+      
+                        }
+                    case ElgatoEventType.Dispose:
+                        {
+                            var e = (DisposeEvent)actionEvent;
+                            Dispose?.Invoke(this, e);
                             break;
                         }
                 }

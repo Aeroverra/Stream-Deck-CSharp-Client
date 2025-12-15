@@ -8,10 +8,12 @@ namespace Aeroverra.StreamDeck.Client.Actions
 {
     internal class ActionInfo
     {
-        public string UUID { get; set; }
-        public Type Type { get; set; }
-        public ConstructorInfo ConstructorInfo { get; set; }
+        public required string UUID { get; set; }
+        public required Type Type { get; set; }
+        public required ConstructorInfo ConstructorInfo { get; set; }
+        public required List<PropertyInfo> InjectedProperties { get; set; }
     }
+
     internal class DefaultActionFactory : IActionFactory
     {
         private readonly IServiceProvider _services;
@@ -29,8 +31,7 @@ namespace Aeroverra.StreamDeck.Client.Actions
             _cache = cache;
             _manifest = manifest;
             _dispatcher = dispatcher;
-            InitializeTypes();
-
+            InitializeAndCacheKnownActionTypes();
         }
 
 
@@ -38,23 +39,23 @@ namespace Aeroverra.StreamDeck.Client.Actions
         {
             lock (Instances)
             {
-                var instanceIds = GetInstanceIds(elgatoEvent);
+                // Get all instances we need to notify for this event
+                var instanceIds = GetInstanceIdsToNotify(elgatoEvent);
+
                 List<ActionBase> actions = new List<ActionBase>();
 
                 foreach (var instanceId in instanceIds)
                 {
-                    var instance = Instances
-                        .Where(x => x.Key == instanceId)
-                        .Select(x => x.Value)
-                        .SingleOrDefault();
 
-                    if (instance is not null)
+                    if(Instances.TryGetValue(instanceId, out ActionBase? instance))
                     {
                         actions.Add(instance);
                         continue;
                     }
 
-                    ActionBase? action = GetInstance(instanceId);
+                    // Instance does not exist yet so create it
+                    // This will only happen for a instance specific event thats not global and the loop will only ever run twice in this case
+                    ActionBase? action = CreateActionInstance(instanceId);
                     if (action != null)
                     {
                         actions.Add(action);
@@ -72,7 +73,7 @@ namespace Aeroverra.StreamDeck.Client.Actions
         /// </summary>
         /// <param name="instanceId"></param>
         /// <returns></returns>
-        private ActionBase? GetInstance(string instanceId)
+        private ActionBase? CreateActionInstance(string instanceId)
         {
             IActionContext actionContext = _cache.BuildContext(instanceId);
             IActionDispatcher actionDispatcher = new DefaultActionDispatcher(_dispatcher, actionContext);
@@ -95,7 +96,13 @@ namespace Aeroverra.StreamDeck.Client.Actions
                 }
 
 
-                ActionBase action = Activator.CreateInstance(actionInfo.Type, parameters.ToArray()) as ActionBase;
+                ActionBase action = (Activator.CreateInstance(actionInfo.Type, parameters.ToArray()) as ActionBase)!;
+
+                foreach (var property in actionInfo.InjectedProperties)
+                {
+                    var service = scope.ServiceProvider.GetRequiredService(property.PropertyType);
+                    property.SetValue(action, service);
+                }
 
                 action.Dispatcher = actionDispatcher;
                 action.Context = actionContext;
@@ -110,7 +117,7 @@ namespace Aeroverra.StreamDeck.Client.Actions
         /// </summary>
         /// <param name="elgatoEvent"></param>
         /// <returns></returns>
-        private List<string> GetInstanceIds(IElgatoEvent elgatoEvent)
+        private List<string> GetInstanceIdsToNotify(IElgatoEvent elgatoEvent)
         {
             switch (elgatoEvent.Event)
             {
@@ -125,7 +132,7 @@ namespace Aeroverra.StreamDeck.Client.Actions
             }
             return new List<string>()
             {
-                (elgatoEvent as IActionEvent).Context
+                (elgatoEvent as IActionEvent)!.Context
             };
 
         }
@@ -134,7 +141,7 @@ namespace Aeroverra.StreamDeck.Client.Actions
         /// Pulls all the UUIDs from the manifest and initilizes the ActionInfo with the
         /// corresponding type information
         /// </summary>
-        private void InitializeTypes()
+        private void InitializeAndCacheKnownActionTypes()
         {
             //get all types that inherit actionbase
             var types = Assembly.GetEntryAssembly()
@@ -152,8 +159,8 @@ namespace Aeroverra.StreamDeck.Client.Actions
             foreach (var uuid in uuids)
             {
                 var attTypes = types
-                    .Where(x => x.GetCustomAttributes(typeof(PluginAction), true).Length > 0)
-                    .Where(x => (x.GetCustomAttributes(typeof(PluginAction), true).First() as PluginAction).Id.ToLower() == uuid)
+                    .Where(x => x.GetCustomAttributes(typeof(PluginActionAttribute), true).Length > 0)
+                    .Where(x => (x.GetCustomAttributes(typeof(PluginActionAttribute), true).First() as PluginActionAttribute)!.Id.ToLower() == uuid)
                     .ToList();
 
                 //must not have an attribute, try filtering by name
@@ -178,7 +185,8 @@ namespace Aeroverra.StreamDeck.Client.Actions
                 {
                     UUID = uuid,
                     Type = type,
-                    ConstructorInfo = GetConstructor(type)
+                    ConstructorInfo = GetConstructor(type)!,
+                    InjectedProperties = GetInjectedProperties(type)
                 });
 
             }
@@ -224,6 +232,14 @@ namespace Aeroverra.StreamDeck.Client.Actions
                 return null;
             }
             return validConstructors.OrderByDescending(x => x.GetParameters()).First();
+        }
+
+        private List<PropertyInfo> GetInjectedProperties(Type type)
+        {
+            var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .Where(p => p.GetCustomAttribute<InjectAttribute>() != null)
+                .ToList();
+            return properties;
         }
 
     }

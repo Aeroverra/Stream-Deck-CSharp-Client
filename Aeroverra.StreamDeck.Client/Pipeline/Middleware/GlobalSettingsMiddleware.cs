@@ -17,7 +17,6 @@ namespace Aeroverra.StreamDeck.Client.Pipeline.Middleware
 
         public override Task HandleIncoming(IElgatoEvent message)
         {
-
             return NextDelegate.InvokeNextIncoming(message);
         }
 

@@ -13,13 +13,13 @@ namespace Aeroverra.StreamDeck.Client.Actions
 
         public async Task ExecuteAsync(IElgatoEvent elgatoEvent, List<ActionBase> actions)
         {
-
             foreach (ActionBase action in actions)
             {
                 _= Task.Run(() => ExecuteAsync(elgatoEvent, action));
             }
             await Task.Delay(0);
         }
+
         private async Task ExecuteAsync(IElgatoEvent elgatoEvent, ActionBase action)
         {
             try
@@ -155,6 +155,24 @@ namespace Aeroverra.StreamDeck.Client.Actions
                             var e = (SendToPluginEvent)actionEvent;
                             action.SendToPlugin(e.payload);
                             await action.SendToPluginAsync(e.payload);
+                            break;
+                        }
+                    case ElgatoEventType.OnInitialized:
+                        {
+                            action.OnInitialized();
+                            await action.OnInitializedAsync();
+                            break;
+                        }
+                    case ElgatoEventType.Dispose:
+                        {
+                            if (action is IDisposable disposable)
+                            {
+                                disposable.Dispose();
+                            }
+                            if (action is IAsyncDisposable asyncDisposable)
+                            {
+                                await asyncDisposable.DisposeAsync();
+                            }
                             break;
                         }
                 }

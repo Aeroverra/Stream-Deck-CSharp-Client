@@ -131,7 +131,6 @@ namespace Aeroverra.StreamDeck.Client.Actions
 
         }
 
-
         /// <summary>
         /// When the user presses a key, the plugin will receive the keyDown event.
         /// </summary>
@@ -230,6 +229,21 @@ namespace Aeroverra.StreamDeck.Client.Actions
         {
             return Task.CompletedTask;
         }
+
+        /// <summary>
+        /// Method invoked once when the action is ready to start for the first time, having received its parameters and settings.
+        /// </summary>
+        public virtual void OnInitialized()
+        {
+        }
+
+        /// <summary>
+        /// Method invoked once when the action is ready to start for the first time, having received its parameters and settings.
+        ///
+        /// Override this method if you will perform an asynchronous operation.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
+        public virtual Task OnInitializedAsync() => Task.CompletedTask;
 
         /// <summary>
         /// Event received when the Property Inspector appears in the Stream Deck user interface, for example, when selecting a new instance.

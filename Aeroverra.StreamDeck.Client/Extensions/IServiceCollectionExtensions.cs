@@ -81,8 +81,15 @@ namespace Aeroverra.StreamDeck.Client
                 {
                     services.AddMiddleware<EventLoggingMiddleware>();
                 }
-                services.AddMiddleware<AeroveMiddleware>();
+                services.AddMiddleware<AeroverraMiddleware>();
                 services.AddMiddleware<EventOrderingMiddleware>();
+                services.AddMiddleware<LifeCycleMiddleware>();
+
+
+                if (config.GetValue<bool>("ElgatoEventLogging", true))
+                {
+                    services.AddMiddleware<SDKEventLoggingMiddleware>();
+                }
                 MiddlewareTypes.ForEach(x => builder.Add(x));
 
                 return builder;

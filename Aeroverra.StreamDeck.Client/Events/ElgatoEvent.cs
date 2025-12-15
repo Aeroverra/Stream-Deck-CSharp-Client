@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Aeroverra.StreamDeck.Client.Events.SDKEvents;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Aeroverra.StreamDeck.Client.Events
@@ -7,11 +8,11 @@ namespace Aeroverra.StreamDeck.Client.Events
     {
         public abstract ElgatoEventType Event { get; set; }
 
-        public virtual string Raw { get { return _Raw; } set { if (_Raw == "") { _Raw = value; } } }
-        private string _Raw { get; set; } = "";
+        public string Raw { get { return _Raw; } set { if (_Raw == "{}") { _Raw = value; } } }
+        private string _Raw { get; set; } = "{}";
 
-        public virtual JObject RawJObject { get { return _RawJObject.DeepClone() as JObject; } set { if (_RawJObject == null) { _RawJObject = value; } } }
-        public virtual JObject _RawJObject { get; set; }
+        public JObject RawJObject { get { if (_RawJObject == null) { return new JObject(); } return (_RawJObject.DeepClone() as JObject)!; } set { if (_RawJObject == null) { _RawJObject = value; } } }
+        private JObject? _RawJObject { get; set; } = null;
         public static ElgatoEvent? FromJson(string json)
         {
             JObject jsonObject = JObject.Parse(json);
@@ -77,6 +78,12 @@ namespace Aeroverra.StreamDeck.Client.Events
                     break;
                 case ElgatoEventType.TouchTap:
                     elgatoEvent = JsonConvert.DeserializeObject<TouchTapEvent>(json);
+                    break;
+                case ElgatoEventType.OnInitialized:
+                    elgatoEvent = JsonConvert.DeserializeObject<OnInitializedEvent>(json);
+                    break;
+                case ElgatoEventType.Dispose:
+                    elgatoEvent = JsonConvert.DeserializeObject<DisposeEvent>(json);
                     break;
             }
             elgatoEvent.Raw = json;

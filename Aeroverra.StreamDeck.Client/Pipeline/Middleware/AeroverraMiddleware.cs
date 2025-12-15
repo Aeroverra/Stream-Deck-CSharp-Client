@@ -7,10 +7,10 @@ namespace Aeroverra.StreamDeck.Client.Pipeline.Middleware
     /// <summary>
     /// This is mostly an easter egg / my way of showing I created this Client
     /// </summary>
-    internal class AeroveMiddleware : MiddlewareBase
+    internal class AeroverraMiddleware : MiddlewareBase
     {
         private readonly ILogger<EventLoggingMiddleware> _logger;
-        public AeroveMiddleware(ILogger<EventLoggingMiddleware> logger)
+        public AeroverraMiddleware(ILogger<EventLoggingMiddleware> logger)
         {
             _logger = logger;
         }
@@ -19,7 +19,7 @@ namespace Aeroverra.StreamDeck.Client.Pipeline.Middleware
             if (message.Event == ElgatoEventType.DidReceiveGlobalSettings)
             {
                 var e = (message as DidReceiveGlobalSettingsEvent);
-                e.Payload.Settings.Remove("aerove");
+                e.Payload.Settings.Remove("Aeroverra");
             }
             return NextDelegate.InvokeNextIncoming(message);
         }
@@ -28,7 +28,7 @@ namespace Aeroverra.StreamDeck.Client.Pipeline.Middleware
         {
             if (message["event"]?.ToString() == "setGlobalSettings")
             {
-                var e = message["payload"]["aerove"] = "Stream Deck Client SDK By Aeroverra. Aerove.Tech";
+                var e = message["payload"]!["Aeroverra"] = "Stream Deck Client SDK By Aeroverra. https://aero.vi";
             }
             return NextDelegate.InvokeNextOutgoing(message);
         }

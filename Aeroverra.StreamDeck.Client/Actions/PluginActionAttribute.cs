@@ -3,12 +3,12 @@
 
     [Serializable]
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-    public class PluginAction : Attribute
+    public sealed class PluginActionAttribute : Attribute
     {
 
         public string Id { get; private set; }
 
-        public PluginAction(string ActionId)
+        public PluginActionAttribute(string ActionId)
         {
             Id = ActionId;
         }
