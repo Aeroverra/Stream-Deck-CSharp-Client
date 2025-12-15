@@ -5,6 +5,11 @@ namespace Aeroverra.StreamDeck.Client.Cache
     public class ActionInstance
     {
         /// <summary>
+        /// SDK Assigned unique identifier for this instance of an action
+        /// </summary>
+        public Guid SDKId { get; set; }
+
+        /// <summary>
         /// A value to identify the instance's action. You will need to pass this opaque value to several APIs like the setTitle API.
         /// also known as the context for this instance of an action
         /// </summary>

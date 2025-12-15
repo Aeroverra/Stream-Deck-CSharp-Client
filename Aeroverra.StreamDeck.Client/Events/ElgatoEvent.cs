@@ -8,10 +8,10 @@ namespace Aeroverra.StreamDeck.Client.Events
     {
         public abstract ElgatoEventType Event { get; set; }
 
-        public string Raw { get { return _Raw; } set { if (_Raw == "{}") { _Raw = value; } } }
+        public  string Raw { get { return _Raw; } set { if (_Raw == "{}") { _Raw = value; } } }
         private string _Raw { get; set; } = "{}";
 
-        public JObject RawJObject { get { if (_RawJObject == null) { return new JObject(); } return (_RawJObject.DeepClone() as JObject)!; } set { if (_RawJObject == null) { _RawJObject = value; } } }
+        public  JObject RawJObject { get { if (_RawJObject == null) { return new JObject(); } return (_RawJObject.DeepClone() as JObject)!; } set { if (_RawJObject == null) { _RawJObject = value; } } }
         private JObject? _RawJObject { get; set; } = null;
         public static ElgatoEvent? FromJson(string json)
         {

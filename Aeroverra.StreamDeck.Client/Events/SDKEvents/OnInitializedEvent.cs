@@ -7,6 +7,7 @@ namespace Aeroverra.StreamDeck.Client.Events.SDKEvents
     /// </summary>
     public class OnInitializedEvent : ElgatoEvent, IActionEvent, ISDKEvent
     {
+        public Guid SDKId { get; set; }
         public string Action { get; set; } = null!;
         public string Context { get; set; } = null!;
         public required string Device { get; set; }

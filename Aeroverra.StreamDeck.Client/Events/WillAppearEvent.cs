@@ -4,6 +4,7 @@ namespace Aeroverra.StreamDeck.Client.Events
 {
     public class WillAppearEvent : ElgatoEvent, IActionEvent
     {
+        public Guid SDKId { get; set; }
         public override ElgatoEventType Event { get; set; }
         public string Action { get; set; }
         public string Context { get; set; }
@@ -12,6 +13,5 @@ namespace Aeroverra.StreamDeck.Client.Events
 
         //added by StreamDeckAnalyzerMiddelware
         public bool? WasCreated { get; set; }
-
     }
 }

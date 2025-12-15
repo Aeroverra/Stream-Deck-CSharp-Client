@@ -12,6 +12,5 @@ namespace Aeroverra.StreamDeck.Client.Events.SharedModels
         public string Title { get; set; }
         public Titleparameters Titleparameters { get; set; }
         public string Application { get; set; }
-
     }
 }

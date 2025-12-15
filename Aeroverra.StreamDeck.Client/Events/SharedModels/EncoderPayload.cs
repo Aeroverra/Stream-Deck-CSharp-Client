@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Aeroverra.StreamDeck.Client.Events.SharedModels
 {
-    public class EncoderPayload
+    public class EncoderPayload 
     {
         public string Controller { get; set; }
         public Coordinates Coordinates { get; set; }

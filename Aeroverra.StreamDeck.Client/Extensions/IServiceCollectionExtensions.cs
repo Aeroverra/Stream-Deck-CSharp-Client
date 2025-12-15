@@ -77,6 +77,7 @@ namespace Aeroverra.StreamDeck.Client
             services.AddSingleton(x =>
             {
                 var builder = new MiddlewareBuilder(x, x.GetService<ILogger<MiddlewareBuilder>>());
+                services.AddMiddleware<IdSDKMiddleware>();
                 if (config.GetValue<bool>("ElgatoEventLogging", true))
                 {
                     services.AddMiddleware<EventLoggingMiddleware>();

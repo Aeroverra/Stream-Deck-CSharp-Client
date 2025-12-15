@@ -88,7 +88,7 @@ namespace Aeroverra.StreamDeck.Client.Cache
         private void DidReceiveSettings(DidReceiveSettingsEvent e)
         {
             var device = Devices.Single(x => x.Id == e.Device);
-            var instance = device.ActionInstances.Single(x => x.Id == e.Context);
+            var instance = device.ActionInstances.Single(x => x.SDKId == e.SDKId);
             instance.Column = e.Payload.Coordinates.Column;
             instance.Row = e.Payload.Coordinates.Row;
             instance.Settings = e.Payload.Settings;
@@ -98,13 +98,12 @@ namespace Aeroverra.StreamDeck.Client.Cache
         private void DidReceiveGlobalSettings(DidReceiveGlobalSettingsEvent e)
         {
             GlobalSettings = e.Payload.Settings;
-
         }
 
         private void KeyDown(KeyDownEvent e)
         {
             var device = Devices.Single(x => x.Id == e.Device);
-            var instance = device.ActionInstances.Single(x => x.Id == e.Context);
+            var instance = device.ActionInstances.Single(x => x.SDKId == e.SDKId);
             instance.Column = e.Payload.Coordinates.Column;
             instance.Row = e.Payload.Coordinates.Row;
             instance.Settings = e.Payload.Settings;
@@ -115,7 +114,7 @@ namespace Aeroverra.StreamDeck.Client.Cache
         private void KeyUp(KeyUpEvent e)
         {
             var device = Devices.Single(x => x.Id == e.Device);
-            var instance = device.ActionInstances.Single(x => x.Id == e.Context);
+            var instance = device.ActionInstances.Single(x => x.SDKId == e.SDKId);
             instance.Column = e.Payload.Coordinates.Column;
             instance.Row = e.Payload.Coordinates.Row;
             instance.Settings = e.Payload.Settings;
@@ -125,28 +124,28 @@ namespace Aeroverra.StreamDeck.Client.Cache
 
         private void DialRotate(DialRotateEvent e)
         {
-            UpdateEncoderInstance(e.Device, e.Context, e.Payload);
+            UpdateEncoderInstance(e.Device, e.SDKId, e.Payload);
         }
 
         private void DialDown(DialDownEvent e)
         {
-            UpdateEncoderInstance(e.Device, e.Context, e.Payload);
+            UpdateEncoderInstance(e.Device, e.SDKId, e.Payload);
         }
 
         private void DialUp(DialUpEvent e)
         {
-            UpdateEncoderInstance(e.Device, e.Context, e.Payload);
+            UpdateEncoderInstance(e.Device, e.SDKId, e.Payload);
         }
 
         private void TouchTap(TouchTapEvent e)
         {
-            UpdateEncoderInstance(e.Device, e.Context, e.Payload);
+            UpdateEncoderInstance(e.Device, e.SDKId, e.Payload);
         }
 
-        private void UpdateEncoderInstance(string deviceId, string contextId, EncoderPayload payload)
+        private void UpdateEncoderInstance(string deviceId, Guid sdkId, EncoderPayload payload)
         {
             var device = Devices.Single(x => x.Id == deviceId);
-            var instance = device.ActionInstances.Single(x => x.Id == contextId);
+            var instance = device.ActionInstances.Single(x => x.SDKId == sdkId);
             instance.Column = payload.Coordinates?.Column;
             instance.Row = payload.Coordinates?.Row;
             instance.Settings = payload.Settings;
@@ -156,7 +155,8 @@ namespace Aeroverra.StreamDeck.Client.Cache
         private void WillAppear(WillAppearEvent e)
         {
             var device = Devices.Single(x => x.Id == e.Device);
-            var instance = device.ActionInstances.Single(x => x.Id == e.Context);
+            var instance = device.ActionInstances.Single(x => x.SDKId == e.SDKId);
+            instance.Id = e.Context;
             instance.Settings = e.Payload.Settings;
             instance.Column = e.Payload.Coordinates?.Column;
             instance.Row = e.Payload.Coordinates?.Row;
@@ -169,7 +169,7 @@ namespace Aeroverra.StreamDeck.Client.Cache
         private void WillDisappear(WillDisappearEvent e)
         {
             var device = Devices.Single(x => x.Id == e.Device);
-            var instance = device.ActionInstances.Single(x => x.Id == e.Context);
+            var instance = device.ActionInstances.Single(x => x.SDKId == e.SDKId);
             instance.Settings = e.Payload.Settings;
             instance.Column = e.Payload.Coordinates?.Column;
             instance.Row = e.Payload.Coordinates?.Row;
@@ -181,7 +181,7 @@ namespace Aeroverra.StreamDeck.Client.Cache
         private void TitleParametersDidChange(TitleParametersDidChangeEvent e)
         {
             var device = Devices.Single(x => x.Id == e.Device);
-            var instance = device.ActionInstances.Single(x => x.Id == e.Context);
+            var instance = device.ActionInstances.Single(x => x.SDKId == e.SDKId);
             instance.Column = e.payload.Coordinates.Column;
             instance.Row = e.payload.Coordinates.Row;
             instance.Settings = e.payload.Settings;
@@ -257,11 +257,12 @@ namespace Aeroverra.StreamDeck.Client.Cache
                 };
                 Devices.Add(device);
             }
-            var instance = device.ActionInstances.SingleOrDefault(x => x.Id == e.Context);
+            var instance = device.ActionInstances.SingleOrDefault(x => x.SDKId == e.SDKId);
             if (instance == null)
             {
                 instance = new ActionInstance
                 {
+                    SDKId = e.SDKId,
                     Id = e.Context,
                     UUID = e.Action,
                     Column = e.Payload.Coordinates?.Column,
@@ -287,7 +288,7 @@ namespace Aeroverra.StreamDeck.Client.Cache
         private void Dispose(DisposeEvent e)
         {
             var device = Devices.Single(x => x.Id == e.Device);
-            var instance = device.ActionInstances.Single(x => x.Id == e.Context);
+            var instance = device.ActionInstances.Single(x => x.SDKId == e.SDKId);
             device.ActionInstances.Remove(instance);
             if (device.ActionInstances.Count == 0)
             {
