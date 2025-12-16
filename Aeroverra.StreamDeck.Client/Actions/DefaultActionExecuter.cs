@@ -1,4 +1,5 @@
 ﻿using Aeroverra.StreamDeck.Client.Events;
+using Aeroverra.StreamDeck.Client.Events.SDKEvents;
 using Microsoft.Extensions.Logging;
 
 namespace Aeroverra.StreamDeck.Client.Actions
@@ -172,6 +173,41 @@ namespace Aeroverra.StreamDeck.Client.Actions
                             if (action is IAsyncDisposable asyncDisposable)
                             {
                                 await asyncDisposable.DisposeAsync();
+                            }
+                            break;
+                        }
+                    case ElgatoEventType.DialStop:
+                        {
+                            if (actionEvent is DialStopEvent e)
+                            {
+                                switch (e.EventLength)
+                                {
+                                    case DialStopEventLength.Short:
+                                        {
+                                            action.DialStopShort(e.Payload);
+                                            await action.DialStopShortAsync(e.Payload);
+                                            break;
+                                        }
+                                    case DialStopEventLength.Medium:
+                                        {
+                                            action.DialStopMedium(e.Payload);
+                                            await action.DialStopMediumAsync(e.Payload);
+                                            break;
+                                        }
+                                    case DialStopEventLength.Long:
+                                        {
+                                            action.DialStopLong(e.Payload);
+                                            await action.DialStopLongAsync(e.Payload);
+                                            break;
+                                        }
+                                    case DialStopEventLength.ExtraLong:
+                                        {
+                                            action.DialStopExtraLong(e.Payload);
+                                            await action.DialStopExtraLongAsync(e.Payload);
+                                            break;
+                                        }
+
+                                }
                             }
                             break;
                         }

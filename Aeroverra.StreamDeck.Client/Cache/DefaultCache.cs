@@ -2,6 +2,7 @@
 using Aeroverra.StreamDeck.Client.Events;
 using Aeroverra.StreamDeck.Client.Events.SDKEvents;
 using Aeroverra.StreamDeck.Client.Events.SharedModels;
+using Aeroverra.StreamDeck.Client.Startup;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
@@ -295,7 +296,6 @@ namespace Aeroverra.StreamDeck.Client.Cache
                 Devices.Remove(device);
             }
         }
-
 
         public List<string> GetAllInstanceIds()
         {

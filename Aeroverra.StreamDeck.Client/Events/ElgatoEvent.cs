@@ -6,6 +6,9 @@ namespace Aeroverra.StreamDeck.Client.Events
 {
     public abstract class ElgatoEvent : IElgatoEvent
     {
+        /// <summary>
+        /// Event type identifier.
+        /// </summary>
         public abstract ElgatoEventType Event { get; set; }
 
         public  string Raw { get { return _Raw; } set { if (_Raw == "{}") { _Raw = value; } } }

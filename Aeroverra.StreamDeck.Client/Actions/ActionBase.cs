@@ -1,4 +1,5 @@
-﻿using Aeroverra.StreamDeck.Client.Events.SharedModels;
+﻿using Aeroverra.StreamDeck.Client.Events;
+using Aeroverra.StreamDeck.Client.Events.SharedModels;
 using Newtonsoft.Json.Linq;
 
 namespace Aeroverra.StreamDeck.Client.Actions
@@ -208,6 +209,78 @@ namespace Aeroverra.StreamDeck.Client.Actions
         /// </summary>
         /// <param name="payload">Contains coordinates, settings, and resources.</param>
         public virtual Task DialUpAsync(EncoderPayload payload)
+        {
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// When the user releases the dial and a short amount of time has passed since the last rotation, the plugin receives the DialStopShort event.
+        /// </summary>
+        /// <param name="payload">Contains coordinates, settings, and resources.</param>
+        public virtual void DialStopShort(DialRotatePayload payload)
+        {
+
+        }
+
+        /// <summary>
+        /// When the user releases the dial and a short amount of time has passed since the last rotation, the plugin receives the DialStopShort event.
+        /// </summary>
+        /// <param name="payload">Contains coordinates, settings, and resources.</param>
+        public virtual Task DialStopShortAsync(DialRotatePayload payload)
+        {
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// When the user releases the dial and a medium amount of time has passed since the last rotation, the plugin receives the DialStopMedium event.
+        /// </summary>
+        /// <param name="payload">Contains coordinates, settings, and resources.</param>
+        public virtual void DialStopMedium(DialRotatePayload payload)
+        {
+
+        }
+
+        /// <summary>
+        /// When the user releases the dial and a medium amount of time has passed since the last rotation, the plugin receives the DialStopMedium event.
+        /// </summary>
+        /// <param name="payload">Contains coordinates, settings, and resources.</param>
+        public virtual Task DialStopMediumAsync(DialRotatePayload payload)
+        {
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// When the user releases the dial and a long amount of time has passed since the last rotation, the plugin receives the DialStopLong event.
+        /// </summary>
+        /// <param name="payload">Contains coordinates, settings, and resources.</param>
+        public virtual void DialStopLong(DialRotatePayload payload)
+        {
+
+        }
+
+        /// <summary>
+        /// When the user releases the dial and a long amount of time has passed since the last rotation, the plugin receives the DialStopLong event.
+        /// </summary>
+        /// <param name="payload">Contains coordinates, settings, and resources.</param>
+        public virtual Task DialStopLongAsync(DialRotatePayload payload)
+        {
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// When the user releases the dial and an  extra long amount of time has passed since the last rotation, the plugin receives the DialStopExtraLong event.
+        /// </summary>
+        /// <param name="payload">Contains coordinates, settings, and resources.</param>
+        public virtual void DialStopExtraLong(DialRotatePayload payload)
+        {
+
+        }
+
+        /// <summary>
+        /// When the user releases the dial and an extra long amount of time has passed since the last rotation, the plugin receives the DialStopExtraLong event.
+        /// </summary>
+        /// <param name="payload">Contains coordinates, settings, and resources.</param>
+        public virtual Task DialStopExtraLongAsync(DialRotatePayload payload)
         {
             return Task.CompletedTask;
         }

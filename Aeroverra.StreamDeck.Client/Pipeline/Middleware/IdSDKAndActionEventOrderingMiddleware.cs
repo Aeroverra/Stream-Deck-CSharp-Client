@@ -10,7 +10,7 @@ namespace Aeroverra.StreamDeck.Client.Pipeline.Middleware
     /// </summary>
     /// <param name="logger"></param>
     /// <param name="dispatcher"></param>
-    internal sealed class IdSDKMiddleware(ILogger<IdSDKMiddleware> logger, IElgatoDispatcher dispatcher) : MiddlewareBase
+    internal sealed class IdSDKAndActionEventOrderingMiddleware(ILogger<IdSDKAndActionEventOrderingMiddleware> logger, IElgatoDispatcher dispatcher) : MiddlewareBase
     {
         private const int OutOfOrderEventDisposalSeconds = 5;
 

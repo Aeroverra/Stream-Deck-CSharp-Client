@@ -28,6 +28,7 @@ namespace Aeroverra.StreamDeck.Client.Events
 
         //SDK Events
         OnInitialized,
-        Dispose
+        Dispose,
+        DialStop,
     }
 }

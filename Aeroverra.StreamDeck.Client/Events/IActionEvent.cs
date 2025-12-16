@@ -22,5 +22,10 @@ namespace Aeroverra.StreamDeck.Client.Events
         /// A value to identify the instance's action. You will need to pass this opaque value to several APIs like the setTitle API.
         /// </summary>
         string Context { get; set; }
+
+        /// <summary>
+        /// Unique identifier of the Stream Deck device that this event is associated with.
+        /// </summary>
+        public string Device { get; set; }
     }
 }
