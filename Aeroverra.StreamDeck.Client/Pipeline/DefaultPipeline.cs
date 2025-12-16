@@ -1,6 +1,7 @@
 ﻿using Aeroverra.StreamDeck.Client.Actions;
 using Aeroverra.StreamDeck.Client.Cache;
 using Aeroverra.StreamDeck.Client.Events;
+using Aeroverra.StreamDeck.Client.Events.SDKEvents;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

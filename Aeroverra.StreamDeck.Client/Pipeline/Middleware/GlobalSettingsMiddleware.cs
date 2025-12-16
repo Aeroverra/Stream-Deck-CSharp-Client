@@ -4,6 +4,9 @@ using Newtonsoft.Json.Linq;
 
 namespace Aeroverra.StreamDeck.Client.Pipeline.Middleware
 {
+    /// <summary>
+    /// Handles Rebroadcasting global settings internally when they are updated due to the stream deck not rebroadcasting them.
+    /// </summary>
     internal class GlobalSettingsMiddleware : MiddlewareBase
     {
         private readonly ILogger<EventLoggingMiddleware> _logger;

@@ -8,6 +8,11 @@ namespace Aeroverra.StreamDeck.Client.Actions
     public interface IActionContext
     {
         /// <summary>
+        /// SDK assigned unique identifier for this action instance
+        /// </summary>
+        public Guid SDKId { get; }
+
+        /// <summary>
         /// The Device this instance is on
         /// </summary>
         public string DeviceId { get; }

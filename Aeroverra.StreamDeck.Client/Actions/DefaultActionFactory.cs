@@ -1,5 +1,6 @@
 ﻿using Aeroverra.StreamDeck.Client.Cache;
 using Aeroverra.StreamDeck.Client.Events;
+using Aeroverra.StreamDeck.Client.Events.SDKEvents;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
@@ -47,7 +48,7 @@ namespace Aeroverra.StreamDeck.Client.Actions
                 foreach (var instanceId in instanceIds)
                 {
 
-                    if(Instances.TryGetValue(instanceId, out ActionBase? instance))
+                    if (Instances.TryGetValue(instanceId, out ActionBase? instance))
                     {
                         actions.Add(instance);
                         continue;
@@ -62,6 +63,19 @@ namespace Aeroverra.StreamDeck.Client.Actions
                         Instances.Add(instanceId, action);
                     }
                 }
+
+                if (elgatoEvent is DisposeEvent)
+                {
+                    foreach (var action in actions)
+                    {
+                        Instances.Remove(action.Context.InstanceId);
+                    }
+                    if (actions.Count != 1)
+                    {
+                        _logger.LogError("Dispose event should only result in a single action instance being disposed. Found {Count} instances to dispose.", actions.Count);
+                    }
+                }
+
 
                 return actions;
             }

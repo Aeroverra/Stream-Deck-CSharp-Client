@@ -294,7 +294,6 @@ namespace Aeroverra.StreamDeck.Client.Cache
             {
                 Devices.Remove(device);
             }
-
         }
 
 
@@ -305,6 +304,5 @@ namespace Aeroverra.StreamDeck.Client.Cache
                 .Select(x => x.Id)
                 .ToList();
         }
-
     }
 }

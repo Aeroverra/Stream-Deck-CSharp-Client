@@ -13,6 +13,9 @@ namespace Aeroverra.StreamDeck.Client.Actions
             _instance = instance;
         }
 
+
+        public Guid SDKId { get { return _instance.SDKId; } }
+
         public string DeviceId { get { return _instance.Device.Id; } }
 
         public string InstanceId { get { return _instance.Id; } }

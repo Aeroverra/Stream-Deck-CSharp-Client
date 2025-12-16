@@ -11,6 +11,8 @@ namespace Aeroverra.StreamDeck.Client.Pipeline.Middleware
     /// </summary>
     internal class LifeCycleMiddleware(ILogger<LifeCycleMiddleware> logger) : MiddlewareBase
     {
+        private const int DisposeDelaySeconds = 10;
+
         private HashSet<Guid> KnownSDKIds = new HashSet<Guid>();
 
         private readonly Dictionary<Guid, CancellationTokenSource> PendingDisposes = new Dictionary<Guid, CancellationTokenSource>();
@@ -96,7 +98,7 @@ namespace Aeroverra.StreamDeck.Client.Pipeline.Middleware
         {
             try
             {
-                await Task.Delay(TimeSpan.FromSeconds(5), cancellationTokenSource.Token);
+                await Task.Delay(TimeSpan.FromSeconds(DisposeDelaySeconds), cancellationTokenSource.Token);
 
                 KnownSDKIds.Remove(e.SDKId);
                 cancellationTokenSource.Dispose();

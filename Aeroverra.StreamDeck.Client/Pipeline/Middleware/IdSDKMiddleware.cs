@@ -12,6 +12,8 @@ namespace Aeroverra.StreamDeck.Client.Pipeline.Middleware
     /// <param name="dispatcher"></param>
     internal sealed class IdSDKMiddleware(ILogger<IdSDKMiddleware> logger, IElgatoDispatcher dispatcher) : MiddlewareBase
     {
+        private const int OutOfOrderEventDisposalSeconds = 5;
+
         private HashSet<string> KnownActionContextIds = new HashSet<string>();
 
         private readonly Dictionary<string, CancellationTokenSource> DelayedOutOfOrderEventExpirations = new Dictionary<string, CancellationTokenSource>();
@@ -24,7 +26,12 @@ namespace Aeroverra.StreamDeck.Client.Pipeline.Middleware
 
         public override async Task HandleIncoming(IElgatoEvent message)
         {
-            if (message is IActionEvent actionEvent)
+            // Did disapear event is usually fired after willdisapear...
+            // I have considered tracking when its opened and then delaying the willdisapear until after
+            // but when moving an action with the property inspector open it will often fire two willapear events for some reason followed by a single willdisapear event
+            // and handling all that complexity for something that I don't currently see any use case for seems unnecessary.
+            // so this will just have to be the one action event that may fire out of order..
+            if (message is IActionEvent actionEvent && message is not PropertyInspectorDidDisappearEvent)
             {
                 var knownAction = KnownActionContextIds.Contains(actionEvent.Context);
 
@@ -188,7 +195,7 @@ namespace Aeroverra.StreamDeck.Client.Pipeline.Middleware
         {
             try
             {
-                await Task.Delay(TimeSpan.FromSeconds(5), cancellationTokenSource.Token);
+                await Task.Delay(TimeSpan.FromSeconds(OutOfOrderEventDisposalSeconds), cancellationTokenSource.Token);
 
                 cancellationTokenSource.Dispose();
                 DelayedOutOfOrderEventExpirations.Remove(context);

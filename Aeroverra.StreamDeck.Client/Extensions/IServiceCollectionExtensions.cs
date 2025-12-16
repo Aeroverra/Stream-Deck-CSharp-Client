@@ -83,7 +83,7 @@ namespace Aeroverra.StreamDeck.Client
                     services.AddMiddleware<EventLoggingMiddleware>();
                 }
                 services.AddMiddleware<AeroverraMiddleware>();
-                services.AddMiddleware<EventOrderingMiddleware>();
+                services.AddMiddleware<GlobalSettingsOrderingMiddleware>();
                 services.AddMiddleware<LifeCycleMiddleware>();
 
 

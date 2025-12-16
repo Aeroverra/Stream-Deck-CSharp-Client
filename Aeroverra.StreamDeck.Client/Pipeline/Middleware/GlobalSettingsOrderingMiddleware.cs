@@ -8,11 +8,11 @@ namespace Aeroverra.StreamDeck.Client.Pipeline.Middleware
     /// Holds all incoming event messages at start until the global settings are
     /// Received. This ensures all data is available when actions are called.
     /// </summary>
-    internal class EventOrderingMiddleware : MiddlewareBase
+    internal class GlobalSettingsOrderingMiddleware : MiddlewareBase
     {
-        private readonly ILogger<EventOrderingMiddleware> _logger;
+        private readonly ILogger<GlobalSettingsOrderingMiddleware> _logger;
         private readonly IElgatoDispatcher _dispatcher;
-        public EventOrderingMiddleware(ILogger<EventOrderingMiddleware> logger, IElgatoDispatcher dispatcher)
+        public GlobalSettingsOrderingMiddleware(ILogger<GlobalSettingsOrderingMiddleware> logger, IElgatoDispatcher dispatcher)
         {
             _logger = logger;
             _dispatcher = dispatcher;
