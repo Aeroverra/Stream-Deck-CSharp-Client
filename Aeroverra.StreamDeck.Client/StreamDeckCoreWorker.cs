@@ -40,6 +40,7 @@ namespace Aeroverra.StreamDeck.Client
             catch (WebSocketException)
             {
                 logger.LogCritical("Websocket died, shutting down.");
+                // Exit so Stream Deck will respawn the plugin process and re-init the socket.
                 Environment.Exit(0);
             }
         }

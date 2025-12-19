@@ -172,7 +172,10 @@ namespace Aeroverra.StreamDeck.Client
             {
                 _socket.Dispose();
             }
-            catch { }
+            catch (Exception e)
+            {
+                logger.LogDebug(e, "Ignoring socket dispose failure during shutdown.");
+            }
             _socket = new ClientWebSocket();
         }
     }

@@ -36,15 +36,16 @@ namespace Aeroverra.StreamDeck.Client.Startup
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                Console.WriteLine($"Template update failed: {e.Message}");
             }
         }
         private static List<string> ExecuteDotnetCommand(string command)
         {
             List<string> response = new List<string>();
             var process = new Process();
+            var aeroProcessStarted = false;
             try
             {
                 var startInfo = new ProcessStartInfo
@@ -55,7 +56,7 @@ namespace Aeroverra.StreamDeck.Client.Startup
                 };
 
                 process.StartInfo = startInfo;
-                process.Start();
+                aeroProcessStarted = process.Start();
 
                 while (!process.StandardOutput.EndOfStream)
                 {
@@ -64,9 +65,12 @@ namespace Aeroverra.StreamDeck.Client.Startup
             }
             catch (Exception e)
             {
-
+                Console.WriteLine($"dotnet command '{command}' failed: {e.Message}");
             }
-            process.Kill();
+            if (aeroProcessStarted && process.HasExited == false)
+            {
+                process.Kill();
+            }
             return response;
 
         }

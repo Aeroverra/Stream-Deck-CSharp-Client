@@ -46,6 +46,7 @@ namespace Aeroverra.StreamDeck.Client.Startup
             if (string.IsNullOrEmpty(pluginUUID))
             {
                 Console.WriteLine("DevDebug requires a UUID to be set in appsettings.json.");
+                // Exit so Stream Deck can restart cleanly instead of leaving the dev plugin hung.
                 Environment.Exit(0);
             }
 
@@ -80,6 +81,7 @@ namespace Aeroverra.StreamDeck.Client.Startup
                 "\r\n\t4.) Run your plugin in debug mode." +
                 "\r\n\t5.) If its still not working please let me know. https://discord.aerove.tech");
 
+            // Exit so Stream Deck will trigger a fresh launch attempt after takeover fails.
             Environment.Exit(0);
 
             return null;

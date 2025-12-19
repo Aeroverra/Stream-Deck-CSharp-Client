@@ -16,7 +16,7 @@ namespace Aeroverra.StreamDeck.Client.Pipeline.Middleware
             (DialStopEventLength.Short, 500),
             (DialStopEventLength.Medium, 1000),
             (DialStopEventLength.Long, 2000),
-            (DialStopEventLength.ExtraLong, 4000),
+            (DialStopEventLength.ExtraLong, 3000),
         };
 
         private readonly object SyncRoot = new object();
