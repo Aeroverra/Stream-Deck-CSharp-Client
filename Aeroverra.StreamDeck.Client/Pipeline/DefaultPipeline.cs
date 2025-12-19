@@ -86,13 +86,20 @@ namespace Aeroverra.StreamDeck.Client.Pipeline
             await _nextDelegate.InvokeNextOutgoing(JObject.Parse(json));
         }
 
-        private async Task HandleIncomingFinal(IElgatoEvent elgatoEvent)
-        {
-            _cache.Update(elgatoEvent);
-            var actions = _actionFactory.CreateActions(elgatoEvent);
-            await _actionExecuter.ExecuteAsync(elgatoEvent, actions);
-            _eventManager.HandleIncoming(elgatoEvent);
-        }
+		private async Task HandleIncomingFinal(IElgatoEvent elgatoEvent)
+		{
+			_cache.Update(elgatoEvent);
+			var actions = _actionFactory.CreateActions(elgatoEvent);
+			try
+			{
+				await _actionExecuter.ExecuteAsync(elgatoEvent, actions);
+			}
+			finally
+			{
+				await _actionFactory.CleanupAsync(elgatoEvent, actions);
+			}
+			_eventManager.HandleIncoming(elgatoEvent);
+		}
 
         private Task HandleOutgoingFinal(JObject message)
         {

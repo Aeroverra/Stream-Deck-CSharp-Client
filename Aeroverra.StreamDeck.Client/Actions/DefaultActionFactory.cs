@@ -7,23 +7,23 @@ using System.Reflection;
 
 namespace Aeroverra.StreamDeck.Client.Actions
 {
-    internal class ActionInfo
-    {
-        public required string UUID { get; set; }
-        public required Type Type { get; set; }
-        public required ConstructorInfo ConstructorInfo { get; set; }
-        public required List<PropertyInfo> InjectedProperties { get; set; }
-    }
+	internal class ActionInfo
+	{
+		public required string UUID { get; set; }
+		public required Type Type { get; set; }
+		public required ConstructorInfo ConstructorInfo { get; set; }
+		public required List<PropertyInfo> InjectedProperties { get; set; }
+	}
 
-    internal class DefaultActionFactory : IActionFactory
-    {
-        private readonly IServiceProvider _services;
-        private readonly ILogger<DefaultActionFactory> _logger;
-        private readonly ICache _cache;
-        private readonly ManifestInfo _manifest;
-        private readonly IElgatoDispatcher _dispatcher;
-        private List<ActionInfo> ActionInfo = new List<ActionInfo>();
-        private Dictionary<string, ActionBase> Instances = new Dictionary<string, ActionBase>();
+	internal class DefaultActionFactory : IActionFactory, IAsyncDisposable
+	{
+		private readonly IServiceProvider _services;
+		private readonly ILogger<DefaultActionFactory> _logger;
+		private readonly ICache _cache;
+		private readonly ManifestInfo _manifest;
+		private readonly IElgatoDispatcher _dispatcher;
+		private List<ActionInfo> ActionInfo = new List<ActionInfo>();
+		private Dictionary<string, ActionLifetime> Instances = new Dictionary<string, ActionLifetime>();
         public DefaultActionFactory(IServiceProvider services, ILogger<DefaultActionFactory> logger,
             ICache cache, ManifestInfo manifest, IElgatoDispatcher dispatcher)
         {
@@ -36,93 +36,129 @@ namespace Aeroverra.StreamDeck.Client.Actions
         }
 
 
-        public List<ActionBase> CreateActions(IElgatoEvent elgatoEvent)
-        {
-            lock (Instances)
-            {
-                // Get all instances we need to notify for this event
-                var instanceIds = GetInstanceIdsToNotify(elgatoEvent);
+		public List<ActionBase> CreateActions(IElgatoEvent elgatoEvent)
+		{
+			// Get all instances we need to notify for this event
+			var instanceIds = GetInstanceIdsToNotify(elgatoEvent);
+			List<ActionBase> actions = new List<ActionBase>();
 
-                List<ActionBase> actions = new List<ActionBase>();
+			lock (Instances)
+			{
+				foreach (var instanceId in instanceIds)
+				{
+					if (Instances.TryGetValue(instanceId, out ActionLifetime? lifetime))
+					{
+						actions.Add(lifetime.Action);
+						continue;
+					}
 
-                foreach (var instanceId in instanceIds)
-                {
+					// Instance does not exist yet so create it and keep the scope alive for its lifetime.
+					var newLifetime = CreateActionLifetime(instanceId);
+					if (newLifetime != null)
+					{
+						actions.Add(newLifetime.Action);
+						Instances.Add(instanceId, newLifetime);
+					}
+				}
+			}
 
-                    if (Instances.TryGetValue(instanceId, out ActionBase? instance))
-                    {
-                        actions.Add(instance);
-                        continue;
-                    }
+			return actions;
+		}
 
-                    // Instance does not exist yet so create it
-                    // This will only happen for a instance specific event thats not global and the loop will only ever run twice in this case
-                    ActionBase? action = CreateActionInstance(instanceId);
-                    if (action != null)
-                    {
-                        actions.Add(action);
-                        Instances.Add(instanceId, action);
-                    }
-                }
+		public async ValueTask CleanupAsync(IElgatoEvent elgatoEvent, IReadOnlyCollection<ActionBase> actions)
+		{
+			if (actions.Count == 0)
+			{
+				return;
+			}
 
-                if (elgatoEvent is DisposeEvent)
-                {
-                    foreach (var action in actions)
-                    {
-                        Instances.Remove(action.Context.InstanceId);
-                    }
-                    if (actions.Count != 1)
-                    {
-                        _logger.LogError("Dispose event should only result in a single action instance being disposed. Found {Count} instances to dispose.", actions.Count);
-                    }
-                }
+			// Only dispose owned scopes when the action lifecycle has ended.
+			if (elgatoEvent is not DisposeEvent)
+			{
+				return;
+			}
 
+			List<ActionLifetime> lifetimesToDispose = new List<ActionLifetime>();
 
-                return actions;
-            }
+			lock (Instances)
+			{
+				foreach (var action in actions)
+				{
+					if (Instances.TryGetValue(action.Context.InstanceId, out var lifetime))
+					{
+						Instances.Remove(action.Context.InstanceId);
+						lifetimesToDispose.Add(lifetime);
+					}
+				}
 
-        }
+				if (lifetimesToDispose.Count != actions.Count)
+				{
+					_logger.LogWarning("Dispose event targeted {ActionCount} action(s) but only {LifetimeCount} lifetime(s) were tracked.", actions.Count, lifetimesToDispose.Count);
+				}
+			}
 
-        /// <summary>
-        /// Creates an instance based off the action instance id
-        /// </summary>
-        /// <param name="instanceId"></param>
-        /// <returns></returns>
-        private ActionBase? CreateActionInstance(string instanceId)
-        {
-            IActionContext actionContext = _cache.BuildContext(instanceId);
-            IActionDispatcher actionDispatcher = new DefaultActionDispatcher(_dispatcher, actionContext);
-            var actionInfo = ActionInfo.FirstOrDefault(x => x.UUID == actionContext.ActionUUID);
+			foreach (var lifetime in lifetimesToDispose)
+			{
+				try
+				{
+					await lifetime.DisposeAsync();
+				}
+				catch (Exception e)
+				{
+					_logger.LogError(e, "Failed to dispose scoped action instance {InstanceId}.", lifetime.InstanceId);
+				}
+			}
+		}
 
-            //custructor not known or action class not known
-            if (actionInfo == null || actionInfo.ConstructorInfo == null)
-            {
-                return null;
-            }
+		/// <summary>
+		/// Creates an instance based off the action instance id and keeps the DI scope alive for as long as the action exists.
+		/// </summary>
+		/// <param name="instanceId"></param>
+		/// <returns></returns>
+		private ActionLifetime? CreateActionLifetime(string instanceId)
+		{
+			IActionContext actionContext = _cache.BuildContext(instanceId);
+			IActionDispatcher actionDispatcher = new DefaultActionDispatcher(_dispatcher, actionContext);
+			var actionInfo = ActionInfo.FirstOrDefault(x => x.UUID == actionContext.ActionUUID);
 
-            using (var scope = _services.CreateScope())
-            {
-                //IServiceProvider.GetService
-                List<object> parameters = new List<object>();
-                foreach (var parameter in actionInfo.ConstructorInfo.GetParameters())
-                {
+			//custructor not known or action class not known
+			if (actionInfo == null || actionInfo.ConstructorInfo == null)
+			{
+				return null;
+			}
+
+			var scope = _services.CreateScope();
+
+			try
+			{
+				//IServiceProvider.GetService
+				List<object> parameters = new List<object>();
+				foreach (var parameter in actionInfo.ConstructorInfo.GetParameters())
+				{
                     var service = scope.ServiceProvider.GetRequiredService(parameter.ParameterType);
-                    parameters.Add(service);
-                }
+					parameters.Add(service);
+				}
 
 
-                ActionBase action = (Activator.CreateInstance(actionInfo.Type, parameters.ToArray()) as ActionBase)!;
+				ActionBase action = (Activator.CreateInstance(actionInfo.Type, parameters.ToArray()) as ActionBase)!;
 
                 foreach (var property in actionInfo.InjectedProperties)
                 {
                     var service = scope.ServiceProvider.GetRequiredService(property.PropertyType);
                     property.SetValue(action, service);
-                }
+				}
 
-                action.Dispatcher = actionDispatcher;
-                action.Context = actionContext;
-                return action;
-            }
-        }
+				action.Dispatcher = actionDispatcher;
+				action.Context = actionContext;
+
+				return new ActionLifetime(action, scope, actionContext.InstanceId);
+			}
+			catch
+			{
+				scope.Dispose();
+				throw;
+			}
+		}
 
         /// <summary>
         /// Gets instance ids for the specified event. if the event has a specified context
@@ -248,13 +284,39 @@ namespace Aeroverra.StreamDeck.Client.Actions
             return validConstructors.OrderByDescending(x => x.GetParameters()).First();
         }
 
-        private List<PropertyInfo> GetInjectedProperties(Type type)
-        {
-            var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .Where(p => p.GetCustomAttribute<InjectAttribute>() != null)
-                .ToList();
-            return properties;
-        }
+		private List<PropertyInfo> GetInjectedProperties(Type type)
+		{
+			var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+				.Where(p => p.GetCustomAttribute<InjectAttribute>() != null)
+				.ToList();
+			return properties;
+		}
 
-    }
+		/// <summary>
+		/// Ensures any outstanding scoped action lifetimes are cleaned up if the factory itself is disposed.
+		/// </summary>
+		public async ValueTask DisposeAsync()
+		{
+			List<ActionLifetime> lifetimes;
+
+			lock (Instances)
+			{
+				lifetimes = Instances.Values.ToList();
+				Instances.Clear();
+			}
+
+			foreach (var lifetime in lifetimes)
+			{
+				try
+				{
+					await lifetime.DisposeAsync();
+				}
+				catch (Exception e)
+				{
+					_logger.LogError(e, "Failed to dispose scoped action instance {InstanceId} during factory shutdown.", lifetime.InstanceId);
+				}
+			}
+		}
+
+	}
 }

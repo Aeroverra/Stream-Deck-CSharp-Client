@@ -158,29 +158,17 @@ namespace Aeroverra.StreamDeck.Client.Actions
                             await action.SendToPluginAsync(e.payload);
                             break;
                         }
-                    case ElgatoEventType.OnInitialized:
-                        {
-                            action.OnInitialized();
-                            await action.OnInitializedAsync();
-                            break;
-                        }
-                    case ElgatoEventType.Dispose:
-                        {
-                            if (action is IDisposable disposable)
-                            {
-                                disposable.Dispose();
-                            }
-                            if (action is IAsyncDisposable asyncDisposable)
-                            {
-                                await asyncDisposable.DisposeAsync();
-                            }
-                            break;
-                        }
-                    case ElgatoEventType.DialStop:
-                        {
-                            if (actionEvent is DialStopEvent e)
-                            {
-                                switch (e.EventLength)
+					case ElgatoEventType.OnInitialized:
+						{
+							action.OnInitialized();
+							await action.OnInitializedAsync();
+							break;
+						}
+					case ElgatoEventType.DialStop:
+						{
+							if (actionEvent is DialStopEvent e)
+							{
+								switch (e.EventLength)
                                 {
                                     case DialStopEventLength.Short:
                                         {
