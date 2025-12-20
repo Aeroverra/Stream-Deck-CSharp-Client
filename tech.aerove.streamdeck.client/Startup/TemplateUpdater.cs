@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,18 +19,23 @@ namespace Tech.Aerove.StreamDeck.Client.Startup
             }
             try
             {
-                var listResponse = ExecuteDotnetCommand("dotnet new --list");
+                var checkOutdatedInstall = ExecuteDotnetCommand("dotnet new details Tech.Aerove.StreamDeck.Template");
+                if (checkOutdatedInstall.Any(x => x.ToLower().Contains("authors")))
+                {
+                    ExecuteDotnetCommand("dotnet new uninstall Tech.Aerove.StreamDeck.Template");
+                }
+                var listResponse = ExecuteDotnetCommand("dotnet new list");
                 var templateInstalled = listResponse.Where(x => x.ToLower().Contains("stream deck plugin")).Any();
                 if (!templateInstalled)
                 {
-                    ExecuteDotnetCommand("dotnet new -i Tech.Aerove.StreamDeck.Template");
+                    ExecuteDotnetCommand("dotnet new install Aeroverra.StreamDeck.Template");
                 }
-                var updateCheckResponse = ExecuteDotnetCommand("dotnet new --update-check");
-                var needsUpdate = updateCheckResponse.FirstOrDefault(x => x.ToLower().Contains("dotnet new --install tech.aerove.streamdeck.template"));
-                if (needsUpdate != null && needsUpdate.Contains("dotnet new --install"))
+                var updateCheckResponse = ExecuteDotnetCommand("dotnet new update --check-only");
+                var needsUpdate = updateCheckResponse.FirstOrDefault(x => x.ToLower().Contains("dotnet new install aeroverra.streamDeck.template"));
+                if (needsUpdate != null)
                 {
                     var updateResponse = ExecuteDotnetCommand(needsUpdate.Trim());
-                    var updateSuccess = updateResponse.Where(x => x.ToLower().Contains("success: tech.aerove.streamdeck.template")).Any();
+                    var updateSuccess = updateResponse.Where(x => x.ToLower().Contains("success: aeroverra.streamdeck.template")).Any();
                     if (updateSuccess)
                     {
                         Console.WriteLine("Plugin Template Updated.");
