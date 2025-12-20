@@ -8,7 +8,7 @@
 		<Product>Aeroverra Stream Deck Client</Product>
 		<Title>Aeroverra Stream Deck Client</Title>
 		<Description>An easy to use Client library for making Elgato Stream Deck plugins taking advantage of the .NET service environment. Supports both Windows and Mac OSX natively.</Description>
-		<VersionPrefix>0.8.1</VersionPrefix>
+		<VersionPrefix>0.8.6</VersionPrefix>
 		<VersionSuffix>beta</VersionSuffix>
 		<PackageReleaseNotes>
 		</PackageReleaseNotes>
