@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/Projects/">
+    <Project Path="../Stream-Deck-Aerove-Client-Plugin-Template/TemplatePack.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="../Stream-Deck-CSharp-Client/.github/workflows/dotnet.yml" />
+  </Folder>
+  <Project Path="../Stream-Deck-CSharp-Client/Aeroverra.StreamDeck.Client/Aeroverra.StreamDeck.Client.csproj" />
+  <Project Path="StreamDeckClientDevelopment/StreamDeckClientDevelopment.csproj" />
+</Solution>
